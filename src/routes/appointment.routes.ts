@@ -1,25 +1,36 @@
 import { Router } from "express";
-
-import {
-  getAppointments,
-  getAppointmentById,
-  createAppointment,
-  updateAppointment,
-  deleteAppointment,
-} from "../controllers/appointment.controller";
-
-import { authenticate } from "../middleware/auth.middleware";
+import { AppointmentController } from "../controllers/appointment.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
+const appointmentController = new AppointmentController();
 
-router.get("/", authenticate, getAppointments);
+// ✅ Public route
+router.post("/", appointmentController.create);
 
-router.get("/:id", authenticate, getAppointmentById);
+// 🔒 Protected admin routes
+router.get("/", authMiddleware, appointmentController.getAll);
 
-router.post("/", authenticate, createAppointment);
+router.get("/:id", authMiddleware, appointmentController.getById);
 
-router.put("/:id", authenticate, updateAppointment);
+router.put("/:id", authMiddleware, appointmentController.update);
 
-router.delete("/:id", authenticate, deleteAppointment);
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  appointmentController.updateStatus
+);
+
+router.patch(
+  "/:id/payment",
+  authMiddleware,
+  appointmentController.updatePayment
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  appointmentController.remove
+);
 
 export default router;

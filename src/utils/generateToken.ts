@@ -1,21 +1,11 @@
-import jwt, {SignOptions} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
-
-export const generateToken = (userId:string)=>{
-
-    const secret = process.env.JWT_SECRET as string;
-
-    const options: SignOptions = {
-        expiresIn: "7d"
-    };
-
-
-    return jwt.sign(
-        {
-            id:userId
-        },
-        secret,
-        options
-    );
-
+export const generateToken = (id: string) => {
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: "1d",
+    }
+  );
 };
