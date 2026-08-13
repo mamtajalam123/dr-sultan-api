@@ -1,18 +1,23 @@
 import pool from "../config/db";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import {
+  ResultSetHeader,
+  RowDataPacket,
+} from "mysql2";
+
 import { Gallery } from "../types/gallery";
 
 export class GalleryRepository {
   // ==========================================
   // CREATE GALLERY
   // ==========================================
-  async create(gallery: Gallery) {
+
+  async create(gallery: Gallery): Promise<number> {
     const sql = `
       INSERT INTO gallery
       (
         title,
         description,
-        category,
+        service_id,
         type,
         image,
         status
@@ -22,17 +27,22 @@ export class GalleryRepository {
 
     const values = [
       gallery.title,
-      gallery.description,
-      gallery.category,
-      gallery.type,
+      gallery.description ?? null,
+      gallery.serviceId ?? null,
+      gallery.type || "Image",
       gallery.image ?? null,
-      gallery.status ?? "Active",
+      gallery.status || "Active",
     ];
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      sql,
-      values
-    );
+    console.log("========== CREATE GALLERY REPOSITORY ==========");
+    console.log("GALLERY:", gallery);
+    console.log("SQL VALUES:", values);
+
+    const [result] =
+      await pool.execute<ResultSetHeader>(
+        sql,
+        values
+      );
 
     return result.insertId;
   }
@@ -40,69 +50,127 @@ export class GalleryRepository {
   // ==========================================
   // GET ALL GALLERY
   // ==========================================
-  async findAll() {
+
+  async findAll(): Promise<Gallery[]> {
     const sql = `
-      SELECT *
-      FROM gallery
-      ORDER BY created_at DESC
+      SELECT
+        g.id,
+        g.title,
+        g.description,
+
+        g.service_id AS serviceId,
+
+        sc.name AS serviceName,
+
+        g.type,
+        g.image,
+        g.status,
+        g.created_at,
+        g.updated_at
+
+      FROM gallery g
+
+      LEFT JOIN service_categories sc
+        ON sc.id = g.service_id
+
+      ORDER BY g.created_at DESC
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(sql);
+    const [rows] =
+      await pool.execute<RowDataPacket[]>(
+        sql
+      );
 
-    return rows;
+    return rows as Gallery[];
   }
 
   // ==========================================
   // GET GALLERY BY ID
   // ==========================================
-  async findById(id: number) {
+
+  async findById(
+    id: number
+  ): Promise<Gallery | null> {
     const sql = `
-      SELECT *
-      FROM gallery
-      WHERE id = ?
+      SELECT
+        g.id,
+        g.title,
+        g.description,
+
+        g.service_id AS serviceId,
+
+        sc.name AS serviceName,
+
+        g.type,
+        g.image,
+        g.status,
+        g.created_at,
+        g.updated_at
+
+      FROM gallery g
+
+      LEFT JOIN service_categories sc
+        ON sc.id = g.service_id
+
+      WHERE g.id = ?
+
+      LIMIT 1
     `;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(
-      sql,
-      [id]
-    );
+    const [rows] =
+      await pool.execute<RowDataPacket[]>(
+        sql,
+        [id]
+      );
 
-    return rows.length ? rows[0] : null;
+    if (rows.length === 0) {
+      return null;
+    }
+
+    return rows[0] as Gallery;
   }
 
   // ==========================================
   // UPDATE GALLERY
   // ==========================================
+
   async update(
     id: number,
     gallery: Gallery
-  ) {
+  ): Promise<boolean> {
     const sql = `
       UPDATE gallery
       SET
         title = ?,
         description = ?,
-        category = ?,
+        service_id = ?,
         type = ?,
         image = ?,
         status = ?
+
       WHERE id = ?
     `;
 
     const values = [
       gallery.title,
-      gallery.description,
-      gallery.category,
-      gallery.type,
+      gallery.description ?? null,
+      gallery.serviceId ?? null,
+      gallery.type || "Image",
       gallery.image ?? null,
-      gallery.status ?? "Active",
+      gallery.status || "Active",
       id,
     ];
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      sql,
-      values
-    );
+    console.log("========== UPDATE GALLERY REPOSITORY ==========");
+    console.log("ID:", id);
+    console.log("GALLERY:", gallery);
+    console.log("SQL VALUES:", values);
+
+    const [result] =
+      await pool.execute<ResultSetHeader>(
+        sql,
+        values
+      );
 
     return result.affectedRows > 0;
   }
@@ -110,16 +178,26 @@ export class GalleryRepository {
   // ==========================================
   // DELETE GALLERY
   // ==========================================
-  async delete(id: number) {
+
+  async delete(
+    id: number
+  ): Promise<boolean> {
     const sql = `
       DELETE FROM gallery
       WHERE id = ?
     `;
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      sql,
-      [id]
+    console.log(
+      "========== DELETE GALLERY REPOSITORY =========="
     );
+
+    console.log("DELETE ID:", id);
+
+    const [result] =
+      await pool.execute<ResultSetHeader>(
+        sql,
+        [id]
+      );
 
     return result.affectedRows > 0;
   }

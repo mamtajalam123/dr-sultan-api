@@ -3,10 +3,12 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ServiceCategory } from "../types/service-category";
 
 export class ServiceCategoryRepository {
+
   // ==========================================
   // CREATE CATEGORY
   // ==========================================
   async create(category: ServiceCategory) {
+
     const sql = `
       INSERT INTO service_categories
       (
@@ -31,9 +33,10 @@ export class ServiceCategoryRepository {
   }
 
   // ==========================================
-  // GET ALL CATEGORIES
+  // GET ALL
   // ==========================================
   async findAll() {
+
     const sql = `
       SELECT *
       FROM service_categories
@@ -47,16 +50,17 @@ export class ServiceCategoryRepository {
   }
 
   // ==========================================
-  // GET CATEGORY BY ID
+  // GET BY ID
   // ==========================================
-  async findById(id: number) {
-    const sql = `
+  async findById(id:number){
+
+    const sql=`
       SELECT *
       FROM service_categories
-      WHERE id = ?
+      WHERE id=?
     `;
 
-    const [rows] =
+    const [rows]=
       await pool.execute<RowDataPacket[]>(
         sql,
         [id]
@@ -66,50 +70,76 @@ export class ServiceCategoryRepository {
   }
 
   // ==========================================
-  // UPDATE CATEGORY
+  // UPDATE
   // ==========================================
   async update(
-    id: number,
-    category: ServiceCategory
-  ) {
-    const sql = `
+    id:number,
+    category:ServiceCategory
+  ){
+
+    const sql=`
       UPDATE service_categories
       SET
-        name = ?,
-        status = ?
-      WHERE id = ?
+        name=?,
+        status=?
+      WHERE id=?
     `;
 
-    const values = [
+    const values=[
       category.name,
       category.status ?? "Active",
-      id,
+      id
     ];
 
-    const [result] =
+    const [result]=
       await pool.execute<ResultSetHeader>(
         sql,
         values
       );
 
-    return result.affectedRows > 0;
+    return result.affectedRows>0;
   }
 
   // ==========================================
-  // DELETE CATEGORY
+  // CHECK DUPLICATE
   // ==========================================
-  async delete(id: number) {
-    const sql = `
-      DELETE FROM service_categories
-      WHERE id = ?
+  async findCategoryByName(
+    name:string
+  ){
+
+    const sql=`
+      SELECT *
+      FROM service_categories
+      WHERE LOWER(name)=LOWER(?)
+      LIMIT 1
     `;
 
-    const [result] =
+    const [rows]=
+      await pool.execute<RowDataPacket[]>(
+        sql,
+        [name.trim()]
+      );
+
+    return rows.length ? rows[0] : null;
+  }
+
+  // ==========================================
+  // DELETE
+  // ==========================================
+  async delete(id:number){
+
+    const sql=`
+      DELETE FROM service_categories
+      WHERE id=?
+    `;
+
+    const [result]=
       await pool.execute<ResultSetHeader>(
         sql,
         [id]
       );
 
-    return result.affectedRows > 0;
+    return result.affectedRows>0;
   }
+
 }

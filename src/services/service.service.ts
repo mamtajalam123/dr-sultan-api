@@ -1,59 +1,73 @@
 import { ServiceRepository } from "../repositories/service.repository";
 import { Service } from "../types/service";
 
-export class ServiceService {
-  private repository = new ServiceRepository();
 
-  // ==========================================
-  // CREATE SERVICE
-  // ==========================================
+export class ServiceService {
+
+  private repository =
+    new ServiceRepository();
+
+
+
+  // CREATE
   async createService(
     service: Service
-  ) {
-    return await this.repository.create(
+  ): Promise<number> {
+
+    return this.repository.create(
       service
     );
+
   }
 
-  // ==========================================
-  // GET ALL SERVICES
-  // ==========================================
+
+
+  // GET ALL
   async getServices() {
-    return await this.repository.findAll();
+
+    return this.repository.findAll();
+
   }
 
-  // ==========================================
-  // GET SERVICE BY ID
-  // ==========================================
+
+
+  // GET BY ID
   async getServiceById(
-    id: number
+    id:number
   ) {
-    return await this.repository.findById(
+
+    return this.repository.findById(
       id
     );
+
   }
 
-  // ==========================================
-  // UPDATE SERVICE
-  // ==========================================
+
+
+  // UPDATE
   async updateService(
-    id: number,
-    service: Service
-  ) {
-    return await this.repository.update(
+    id:number,
+    service:Service
+  ):Promise<boolean>{
+
+    return this.repository.update(
       id,
       service
     );
+
   }
 
-  // ==========================================
-  // DELETE SERVICE
-  // ==========================================
+
+
+  // DELETE
   async deleteService(
-    id: number
-  ) {
-    return await this.repository.delete(
+    id:number
+  ):Promise<boolean>{
+
+    return this.repository.delete(
       id
     );
+
   }
+
 }

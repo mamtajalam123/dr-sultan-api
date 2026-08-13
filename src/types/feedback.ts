@@ -1,19 +1,16 @@
 export interface Feedback {
-  id?: number;
+  id: number;
 
   patient_name: string;
 
-  treatment: string;
+  patient_image?: string | null;
 
-  rating: number;
+  rating?: number | null;
 
-  review: string;
+  message: string;
 
-  image?: string | null;
+  status: "Active" | "Inactive";
 
-  status?: "Pending" | "Approved";
-
-  created_at?: Date;
-
-  updated_at?: Date;
+  created_at?: string;
+  updated_at?: string;
 }

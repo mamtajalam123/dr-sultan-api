@@ -3,7 +3,11 @@ export interface Service {
 
   name: string;
 
-  category: string;
+  // Foreign key
+  categoryId: number;
+
+  // Joined category name (optional)
+  categoryName?: string;
 
   duration: string;
 
@@ -13,7 +17,7 @@ export interface Service {
 
   status?: "Active" | "Inactive";
 
-  created_at?: Date;
+  createdAt?: Date;
 
-  updated_at?: Date;
+  updatedAt?: Date;
 }

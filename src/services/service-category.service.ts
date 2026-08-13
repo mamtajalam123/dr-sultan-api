@@ -32,10 +32,7 @@ export class ServiceCategoryService {
     id: number,
     category: ServiceCategory
   ) {
-    return await this.repository.update(
-      id,
-      category
-    );
+    return await this.repository.update(id, category);
   }
 
   // ==========================================
@@ -43,5 +40,12 @@ export class ServiceCategoryService {
   // ==========================================
   async deleteCategory(id: number) {
     return await this.repository.delete(id);
+  }
+
+  // ==========================================
+  // CHECK CATEGORY EXISTS
+  // ==========================================
+  async categoryExists(name: string) {
+    return await this.repository.findCategoryByName(name);
   }
 }

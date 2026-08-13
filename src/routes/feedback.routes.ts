@@ -1,35 +1,126 @@
 import { Router } from "express";
-import { FeedbackController } from "../controllers/feedback.controller";
-// import { authMiddleware } from "../middlewares/auth.middleware";
+
+import {
+  FeedbackController,
+} from "../controllers/feedback.controller";
+
+import {
+  authMiddleware,
+} from "../middleware/auth.middleware";
+
+import {
+  uploadFeedback,
+} from "../middleware/upload.middleware";
 
 const router = Router();
 
-const controller = new FeedbackController();
+// ==========================================
+// CONTROLLER
+// ==========================================
+
+const controller =
+  new FeedbackController();
 
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
 
-// Get All Feedback
-router.get("/", controller.getAll);
-
-// Get Feedback By ID
-router.get("/:id", controller.getById);
-
 // ==========================================
-// PROTECTED ROUTES
+// GET ALL FEEDBACK
+// GET /api/feedback
 // ==========================================
 
-// Uncomment if you want authentication
-// router.use(authMiddleware);
+router.get(
+  "/",
+  controller.getAll
+);
 
-// Create Feedback
-router.post("/", controller.create);
+// ==========================================
+// GET SINGLE FEEDBACK
+// GET /api/feedback/:id
+// ==========================================
 
-// Update Feedback
-router.put("/:id", controller.update);
+router.get(
+  "/:id",
+  controller.getById
+);
 
-// Delete Feedback
-router.delete("/:id", controller.remove);
+// ==========================================
+// PROTECTED ADMIN ROUTES
+// ==========================================
+
+// ==========================================
+// CREATE FEEDBACK
+// POST /api/feedback
+//
+// Content-Type:
+// multipart/form-data
+//
+// FormData field:
+// patientImage
+// ==========================================
+
+router.post(
+  "/",
+  authMiddleware,
+  uploadFeedback.single(
+    "patientImage"
+  ),
+  controller.create
+);
+
+// ==========================================
+// UPDATE FEEDBACK
+// PUT /api/feedback/:id
+//
+// Content-Type:
+// multipart/form-data
+//
+// FormData field:
+// patientImage
+// ==========================================
+
+router.put(
+  "/:id",
+  authMiddleware,
+  uploadFeedback.single(
+    "patientImage"
+  ),
+  controller.update
+);
+
+// ==========================================
+// UPDATE STATUS
+// PATCH /api/feedback/:id/status
+//
+// Content-Type:
+// application/json
+//
+// Body:
+// {
+//   "status": "Approved"
+// }
+// ==========================================
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  controller.updateStatus
+);
+
+// ==========================================
+// DELETE FEEDBACK
+// DELETE /api/feedback/:id
+// ==========================================
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  controller.delete
+);
+
+// ==========================================
+// EXPORT
+// ==========================================
 
 export default router;

@@ -1,53 +1,91 @@
+
 import { Router } from "express";
+
 import ContactController from "../controllers/contact.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
-
 const router = Router();
 
-const contactController = new ContactController();
+const contactController =
+  new ContactController();
 
 // ==========================================
 // PUBLIC ROUTE
-// Website Contact Form
+// WEBSITE CONTACT FORM
 // ==========================================
 
+// POST /api/contacts
 router.post(
   "/",
-  contactController.create
+  contactController.create.bind(
+    contactController
+  )
 );
 
 // ==========================================
-// ADMIN ROUTES (Protected)
+// ADMIN PROTECTED ROUTES
 // ==========================================
 
 router.use(authMiddleware);
 
-// Get All Contacts
+// ==========================================
+// GET ALL CONTACTS
+// GET /api/contacts
+// ==========================================
+
 router.get(
   "/",
-  contactController.getAll
+  contactController.getAll.bind(
+    contactController
+  )
 );
 
-// Get Contact By ID
-router.get("/:id", contactController.getById);
+// ==========================================
+// GET CONTACT BY ID
+// GET /api/contacts/:id
+// ==========================================
 
-// Update Contact
+router.get(
+  "/:id",
+  contactController.getById.bind(
+    contactController
+  )
+);
+
+// ==========================================
+// UPDATE CONTACT
+// PUT /api/contacts/:id
+// ==========================================
+
 router.put(
   "/:id",
-  contactController.update
+  contactController.update.bind(
+    contactController
+  )
 );
 
-// Update Status
+// ==========================================
+// UPDATE STATUS
+// PATCH /api/contacts/:id/status
+// ==========================================
+
 router.patch(
   "/:id/status",
-  contactController.updateStatus
+  contactController.updateStatus.bind(
+    contactController
+  )
 );
 
-// Delete Contact
+// ==========================================
+// DELETE CONTACT
+// DELETE /api/contacts/:id
+// ==========================================
+
 router.delete(
   "/:id",
-  contactController.remove
+  contactController.remove.bind(
+    contactController
+  )
 );
 
 export default router;

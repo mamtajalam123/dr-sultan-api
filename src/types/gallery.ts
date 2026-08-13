@@ -3,22 +3,19 @@ export interface Gallery {
 
   title: string;
 
-  description: string;
+  description?: string | null;
 
-  category:
-    | "Clinic"
-    | "Doctors"
-    | "Technology"
-    | "Patients"
-    | "Events";
+  serviceId?: number | null;
+
+  serviceName?: string | null;
 
   type: string;
 
   image?: string | null;
 
-  status?: "Active" | "Inactive";
+  status: string;
 
-  created_at?: Date;
+  created_at?: string;
 
-  updated_at?: Date;
+  updated_at?: string;
 }

@@ -25,8 +25,12 @@ export class DesignationService {
   // ==========================================
   // GET DESIGNATION BY ID
   // ==========================================
-  async getDesignationById(id: number) {
-    return await this.repository.findById(id);
+  async getDesignationById(
+    id: number
+  ) {
+    return await this.repository.findById(
+      id
+    );
   }
 
   // ==========================================
@@ -45,7 +49,22 @@ export class DesignationService {
   // ==========================================
   // DELETE DESIGNATION
   // ==========================================
-  async deleteDesignation(id: number) {
-    return await this.repository.delete(id);
+  async deleteDesignation(
+    id: number
+  ) {
+    return await this.repository.delete(
+      id
+    );
+  }
+
+  // ==========================================
+  // CHECK DESIGNATION EXISTS
+  // ==========================================
+  async designationExists(
+    name: string
+  ) {
+    return await this.repository.findDesignationByName(
+      name
+    );
   }
 }

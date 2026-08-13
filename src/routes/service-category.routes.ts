@@ -1,35 +1,90 @@
 import { Router } from "express";
+
 import { ServiceCategoryController } from "../controllers/service-category.controller";
-// import { authMiddleware } from "../middlewares/auth.middleware";
+
+import { authMiddleware } from "../middleware/auth.middleware";
+
 
 const router = Router();
 
-const controller = new ServiceCategoryController();
 
-// ==========================================
-// PUBLIC ROUTES
-// ==========================================
+const controller =
+  new ServiceCategoryController();
 
-// Get All Categories
-router.get("/", controller.getAll);
 
-// Get Category By ID
-router.get("/:id", controller.getById);
 
-// ==========================================
-// PROTECTED ROUTES
-// ==========================================
 
-// Uncomment if using JWT Authentication
-// router.use(authMiddleware);
 
-// Create Category
-router.post("/", controller.create);
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES
+|--------------------------------------------------------------------------
+*/
 
-// Update Category
-router.put("/:id", controller.update);
 
-// Delete Category
-router.delete("/:id", controller.remove);
+// Get all categories
+// Frontend dropdown/filter
+
+router.get(
+  "/",
+  controller.getAll
+);
+
+
+
+
+// Get category by id
+
+router.get(
+  "/:id",
+  controller.getById
+);
+
+
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN PROTECTED ROUTES
+|--------------------------------------------------------------------------
+*/
+
+
+router.use(authMiddleware);
+
+
+
+
+// Create category
+
+router.post(
+  "/",
+  controller.create
+);
+
+
+
+
+// Update category
+
+router.put(
+  "/:id",
+  controller.update
+);
+
+
+
+
+// Delete category
+
+router.delete(
+  "/:id",
+  controller.remove
+);
+
+
 
 export default router;

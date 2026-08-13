@@ -13,14 +13,35 @@ export class DesignationController {
     res: Response
   ) => {
     try {
-      const id = await this.service.createDesignation(
-        req.body
-      );
+      const { name } = req.body;
+
+      console.log("Checking designation:", name);
+
+      const exists =
+        await this.service.designationExists(
+          name
+        );
+
+      console.log("Exists:", exists);
+
+      if (exists) {
+        return res.status(409).json({
+          success: false,
+          status: "409 Conflict",
+          message: "Designation already exists.",
+        });
+      }
+
+      const id =
+        await this.service.createDesignation(
+          req.body
+        );
 
       return res.status(201).json({
         success: true,
         status: "201 Created",
-        message: "Designation created successfully.",
+        message:
+          "Designation created successfully.",
         id,
       });
     } catch (error: any) {
@@ -78,7 +99,9 @@ export class DesignationController {
       const id = Number(req.params.id);
 
       const designation =
-        await this.service.getDesignationById(id);
+        await this.service.getDesignationById(
+          id
+        );
 
       if (!designation) {
         return res.status(404).json({
@@ -162,7 +185,9 @@ export class DesignationController {
       const id = Number(req.params.id);
 
       const deleted =
-        await this.service.deleteDesignation(id);
+        await this.service.deleteDesignation(
+          id
+        );
 
       if (!deleted) {
         return res.status(404).json({

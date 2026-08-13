@@ -1,5 +1,8 @@
 import pool from "../config/db";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import {
+  ResultSetHeader,
+  RowDataPacket,
+} from "mysql2";
 import { Designation } from "../types/designation";
 
 export class DesignationRepository {
@@ -93,6 +96,30 @@ export class DesignationRepository {
       );
 
     return result.affectedRows > 0;
+  }
+
+  // ==========================================
+  // FIND DESIGNATION BY NAME
+  // ==========================================
+  async findDesignationByName(
+    name: string
+  ) {
+    const sql = `
+      SELECT *
+      FROM team_designations
+      WHERE LOWER(name) = LOWER(?)
+      LIMIT 1
+    `;
+
+    const [rows] =
+      await pool.execute<RowDataPacket[]>(
+        sql,
+        [name.trim()]
+      );
+
+    return rows.length
+      ? rows[0]
+      : null;
   }
 
   // ==========================================

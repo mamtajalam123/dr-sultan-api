@@ -1,39 +1,50 @@
 import { Router } from "express";
 import { ServiceController } from "../controllers/service.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { uploadServiceImage } from "../middleware/upload.middleware";
 
 const router = Router();
-
 const controller = new ServiceController();
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
 
-router.get("/", controller.getAll);
+// ==========================================
+// PUBLIC ROUTES
+// ==========================================
 
-router.get("/:id", controller.getById);
+// Get all services
+router.get(
+  "/",
+  controller.getAll
+);
 
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Admin)
-|--------------------------------------------------------------------------
-*/
+// Get service by id
+router.get(
+  "/:id",
+  controller.getById
+);
 
+
+// ==========================================
+// ADMIN ROUTES
+// ==========================================
+
+// Create service
 router.post(
   "/",
   authMiddleware,
+  uploadServiceImage.single("image"),
   controller.create
 );
 
+// Update service
 router.put(
   "/:id",
   authMiddleware,
+  uploadServiceImage.single("image"),
   controller.update
 );
 
+// Delete service
 router.delete(
   "/:id",
   authMiddleware,

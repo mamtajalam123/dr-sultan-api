@@ -1,48 +1,63 @@
+
 import { Router } from "express";
+
 import { TeamController } from "../controllers/team.controller";
-import { authMiddleware } from "../middleware/auth.middleware";
+
+import { uploadTeamImage } from "../middleware/upload.middleware";
 
 const router = Router();
 
-const controller = new TeamController();
+// ==========================================
+// CREATE TEAM MEMBER
+// POST /api/teams
+// ==========================================
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
-// Get All Team Members (Frontend)
-router.get("/", controller.getAll);
-
-// Get Team Member By ID (Frontend)
-router.get("/:id", controller.getById);
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Admin)
-|--------------------------------------------------------------------------
-*/
-
-// Create Team Member
 router.post(
   "/",
-  authMiddleware,
-  controller.create
+  uploadTeamImage.single("image"),
+  TeamController.create
 );
 
-// Update Team Member
+// ==========================================
+// GET ALL TEAM MEMBERS
+// GET /api/teams
+// ==========================================
+
+router.get(
+  "/",
+  TeamController.getAll
+);
+
+// ==========================================
+// GET TEAM MEMBER BY ID
+// GET /api/teams/:id
+// ==========================================
+
+router.get(
+  "/:id",
+  TeamController.getById
+);
+
+// ==========================================
+// UPDATE TEAM MEMBER
+// PUT /api/teams/:id
+// ==========================================
+
 router.put(
   "/:id",
-  authMiddleware,
-  controller.update
+  uploadTeamImage.single("image"),
+  TeamController.update
 );
 
-// Delete Team Member
+// ==========================================
+// DELETE TEAM MEMBER
+// DELETE /api/teams/:id
+// ==========================================
+
 router.delete(
   "/:id",
-  authMiddleware,
-  controller.remove
+  TeamController.delete
 );
 
 export default router;
+

@@ -1,179 +1,411 @@
 import pool from "../config/db";
-import { ResultSetHeader } from "mysql2";
 import { Team } from "../types/team";
+
 
 export class TeamRepository {
 
-  // ==========================================
+
+  // ==========================
   // CREATE TEAM MEMBER
-  // ==========================================
+  // ==========================
+
   async create(team: Team) {
 
+
     const sql = `
+
       INSERT INTO teams
+
       (
         name,
-        designation,
+        designation_id,
         specialization,
         experience,
         email,
         phone,
         image,
+        bio,
         status
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+
     `;
 
 
     const values = [
-      team.name ?? null,
-      team.designation ?? null,
+
+      team.name,
+
+      team.designationId,
+
       team.specialization ?? null,
+
       team.experience ?? null,
+
       team.email ?? null,
+
       team.phone ?? null,
+
       team.image ?? null,
-      team.status ?? "Active",
+
+      team.bio ?? null,
+
+      team.status ?? "Active"
+
     ];
 
 
-    const [result] =
-      await pool.execute<ResultSetHeader>(
+
+    const [result]: any =
+      await pool.execute(
         sql,
         values
       );
 
 
-    return result.insertId;
+
+    return {
+
+      id: result.insertId,
+
+      ...team
+
+    };
+
+
   }
 
 
 
-  // ==========================================
+
+
+  // ==========================
   // GET ALL TEAM MEMBERS
-  // ==========================================
-  async findAll() {
+  // ==========================
+
+
+  async findAll(){
+
 
     const sql = `
-      SELECT *
+
+      SELECT
+
+
+      teams.id,
+
+      teams.name,
+
+      teams.designation_id,
+
+
+      designations.name AS designation,
+
+
+      teams.specialization,
+
+      teams.experience,
+
+      teams.email,
+
+      teams.phone,
+
+      teams.image,
+
+      teams.bio,
+
+      teams.status,
+
+      teams.created_at,
+
+      teams.updated_at
+
+
+
       FROM teams
-      ORDER BY created_at DESC
+
+
+
+      LEFT JOIN designations
+
+
+      ON teams.designation_id = designations.id
+
+
+
+      ORDER BY teams.id DESC
+
+
     `;
 
-
-    const [rows] =
-      await pool.execute(sql);
-
-
-    return rows;
-  }
-
-
-
-  // ==========================================
-  // GET TEAM MEMBER BY ID
-  // ==========================================
-  async findById(id:number) {
-
-    const sql = `
-      SELECT *
-      FROM teams
-      WHERE id = ?
-    `;
 
 
     const [rows]:any =
-      await pool.execute(
-        sql,
-        [id]
-      );
+
+      await pool.execute(sql);
 
 
-    return rows[0] || null;
+
+    return rows;
+
+
   }
 
 
 
-  // ==========================================
-  // UPDATE TEAM MEMBER
-  // ==========================================
-  async update(
-    id:number,
-    team:Team
-  ) {
+
+
+
+  // ==========================
+  // GET SINGLE TEAM MEMBER
+  // ==========================
+
+
+  async findById(
+    id:number
+  ){
+
+
 
     const sql = `
-      UPDATE teams
-      SET
-        name = ?,
-        designation = ?,
-        specialization = ?,
-        experience = ?,
-        email = ?,
-        phone = ?,
-        image = ?,
-        status = ?
-      WHERE id = ?
+
+
+      SELECT
+
+
+      teams.id,
+
+      teams.name,
+
+      teams.designation_id,
+
+
+      designations.name AS designation,
+
+
+      teams.specialization,
+
+      teams.experience,
+
+      teams.email,
+
+      teams.phone,
+
+      teams.image,
+
+      teams.bio,
+
+      teams.status,
+
+      teams.created_at,
+
+      teams.updated_at
+
+
+
+      FROM teams
+
+
+
+      LEFT JOIN designations
+
+
+      ON teams.designation_id = designations.id
+
+
+
+      WHERE teams.id=?
+
+
+
     `;
+
+
+
+    const [rows]:any =
+
+      await pool.execute(
+
+        sql,
+
+        [id]
+
+      );
+
+
+
+    return rows[0] || null;
+
+
+  }
+
+
+
+
+
+
+
+  // ==========================
+  // UPDATE TEAM MEMBER
+  // ==========================
+
+
+  async update(
+
+    id:number,
+
+    team:Team
+
+  ){
+
+
+
+    const sql = `
+
+
+      UPDATE teams SET
+
+
+      name=?,
+
+
+      designation_id=?,
+
+
+      specialization=?,
+
+
+      experience=?,
+
+
+      email=?,
+
+
+      phone=?,
+
+
+      image=?,
+
+
+      bio=?,
+
+
+      status=?
+
+
+
+      WHERE id=?
+
+
+    `;
+
+
 
 
     const values = [
 
-      team.name ?? null,
 
-      team.designation ?? null,
+      team.name,
+
+
+      team.designationId,
+
 
       team.specialization ?? null,
 
+
       team.experience ?? null,
+
 
       team.email ?? null,
 
+
       team.phone ?? null,
+
 
       team.image ?? null,
 
+
+      team.bio ?? null,
+
+
       team.status ?? "Active",
 
+
       id
+
 
     ];
 
 
 
-    const [result] =
-      await pool.execute<ResultSetHeader>(
-        sql,
-        values
-      );
+
+    await pool.execute(
+
+      sql,
+
+      values
+
+    );
 
 
-    return result.affectedRows > 0;
+
+
+    return {
+
+      id,
+
+      ...team
+
+    };
+
 
   }
 
 
 
-  // ==========================================
+
+
+
+
+  // ==========================
   // DELETE TEAM MEMBER
-  // ==========================================
-  async delete(id:number) {
+  // ==========================
 
-    const sql = `
+
+  async delete(
+
+    id:number
+
+  ){
+
+
+
+    await pool.execute(
+
+      `
+
       DELETE FROM teams
-      WHERE id = ?
-    `;
+
+      WHERE id=?
+
+      `,
+
+      [
+
+        id
+
+      ]
+
+    );
 
 
-    const [result] =
-      await pool.execute<ResultSetHeader>(
-        sql,
-        [id]
-      );
 
+    return true;
 
-    return result.affectedRows > 0;
 
   }
+
 
 }

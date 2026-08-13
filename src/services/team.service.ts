@@ -1,47 +1,167 @@
 import { TeamRepository } from "../repositories/team.repository";
 import { Team } from "../types/team";
 
+
+const repo = new TeamRepository();
+
+
 export class TeamService {
-  private repository = new TeamRepository();
 
-  // ==========================================
-  // CREATE TEAM MEMBER
-  // ==========================================
-  async createTeam(team: Team) {
-    return this.repository.create(team);
-  }
 
-  // ==========================================
-  // GET ALL TEAM MEMBERS
-  // ==========================================
-  async getTeams() {
-    return this.repository.findAll();
-  }
+  // ==========================
+  // CREATE TEAM
+  // ==========================
 
-  // ==========================================
-  // GET TEAM MEMBER BY ID
-  // ==========================================
-  async getTeamById(id: number) {
-    return this.repository.findById(id);
-  }
+  async create(data:any){
 
-  // ==========================================
-  // UPDATE TEAM MEMBER
-  // ==========================================
-  async updateTeam(
-    id: number,
-    team: Team
-  ) {
-    return this.repository.update(
-      id,
+
+    if(!data.name){
+
+      throw new Error(
+        "Name required"
+      );
+
+    }
+
+
+    if(!data.designationId){
+
+      throw new Error(
+        "Designation required"
+      );
+
+    }
+
+
+
+    const team:Team = {
+
+
+      name:data.name,
+
+
+      designationId:
+        Number(
+          data.designationId
+        ),
+
+
+      specialization:
+        data.specialization || null,
+
+
+      experience:
+        data.experience || null,
+
+
+      email:
+        data.email || null,
+
+
+      phone:
+        data.phone || null,
+
+
+      bio:
+        data.bio || null,
+
+
+      image:
+        data.image || null,
+
+
+      status:
+        data.status || "Active"
+
+
+    };
+
+
+
+    console.log(
+      "SERVICE TEAM DATA:",
       team
     );
+
+
+
+    return await repo.create(
+      team
+    );
+
+
   }
 
-  // ==========================================
-  // DELETE TEAM MEMBER
-  // ==========================================
-  async deleteTeam(id: number) {
-    return this.repository.delete(id);
+
+
+
+
+  // ==========================
+  // GET ALL
+  // ==========================
+
+  async getAll(){
+
+    return await repo.findAll();
+
   }
+
+
+
+
+
+
+  // ==========================
+  // GET BY ID
+  // ==========================
+
+  async getById(
+    id:number
+  ){
+
+    return await repo.findById(
+      id
+    );
+
+  }
+
+
+
+
+
+  // ==========================
+  // UPDATE
+  // ==========================
+
+  async update(
+    id:number,
+    data:Team
+  ){
+
+    return await repo.update(
+      id,
+      data
+    );
+
+  }
+
+
+
+
+
+  // ==========================
+  // DELETE
+  // ==========================
+
+  async delete(
+    id:number
+  ){
+
+    return await repo.delete(
+      id
+    );
+
+  }
+
+
 }

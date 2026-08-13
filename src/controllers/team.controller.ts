@@ -1,269 +1,335 @@
 import { Request, Response } from "express";
 import { TeamService } from "../services/team.service";
 
-export class TeamController {
-  private service = new TeamService();
 
-  // ==========================================
+const teamService = new TeamService();
+
+
+
+export class TeamController {
+
+
+
+  // ==========================
   // CREATE TEAM MEMBER
-  // POST /api/teams
-  // ==========================================
-  create = async (
+  // ==========================
+
+  static async create(
     req: Request,
     res: Response
-  ): Promise<Response> => {
+  ) {
+
     try {
 
-      console.log("CREATE TEAM BODY:", req.body);
 
-      const id = await this.service.createTeam(
-        req.body
-      );
+      const data = {
+
+        ...req.body,
+
+
+        designationId:
+          Number(req.body.designationId),
+
+
+        image:
+          req.file
+          ? `/uploads/${req.file.filename}`
+          : null,
+
+
+      };
+
+
+
+      const result =
+        await teamService.create(data);
+
+
 
       return res.status(201).json({
-        success: true,
-        status: "201 Created",
-        message: "Team member created successfully.",
-        id,
+
+        success:true,
+
+        message:"Team member added",
+
+        data:result
+
       });
 
-    } catch (error: any) {
 
-      console.error(
+    }
+    catch(error:any){
+
+
+      console.log(
         "CREATE TEAM ERROR:",
         error
       );
 
-      return res.status(500).json({
-        success: false,
-        status: "500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to create team member.",
-      });
-    }
-  };
-
-
-  // ==========================================
-  // GET ALL TEAM MEMBERS
-  // GET /api/teams
-  // ==========================================
-  getAll = async (
-    req: Request,
-    res: Response
-  ): Promise<Response> => {
-
-    try {
-
-      const teams =
-        await this.service.getTeams();
-
-
-      return res.status(200).json({
-        success:true,
-        status:"200 OK",
-        data:teams,
-      });
-
-
-    } catch(error:any){
-
-      console.error(
-        "GET TEAM ERROR:",
-        error
-      );
-
 
       return res.status(500).json({
+
         success:false,
-        status:"500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to fetch team members.",
+
+        message:error.message
+
       });
+
 
     }
 
-  };
+  }
 
 
-  // ==========================================
-  // GET TEAM MEMBER BY ID
-  // GET /api/teams/:id
-  // ==========================================
-  getById = async (
-    req: Request,
-    res: Response
-  ): Promise<Response> => {
 
-    try {
+
+
+  // ==========================
+  // GET ALL
+  // ==========================
+
+
+  static async getAll(
+    req:Request,
+    res:Response
+  ){
+
+    try{
+
+
+      const result =
+        await teamService.getAll();
+
+
+
+      return res.json({
+
+        success:true,
+
+        data:result
+
+      });
+
+
+
+    }
+    catch(error:any){
+
+
+      return res.status(500).json({
+
+        success:false,
+
+        message:error.message
+
+      });
+
+
+    }
+
+  }
+
+
+
+
+
+  // ==========================
+  // GET BY ID
+  // ==========================
+
+
+  static async getById(
+    req:Request,
+    res:Response
+  ){
+
+    try{
+
 
       const id =
         Number(req.params.id);
 
 
-      const team =
-        await this.service.getTeamById(id);
 
+      if(!id){
 
-      if(!team){
+        return res.status(400).json({
 
-        return res.status(404).json({
           success:false,
-          status:"404 Not Found",
-          message:"Team member not found.",
+
+          message:"Invalid team id"
+
         });
 
       }
 
 
-      return res.status(200).json({
+
+      const result =
+        await teamService.getById(id);
+
+
+
+      return res.json({
+
         success:true,
-        status:"200 OK",
-        data:team,
+
+        data:result
+
       });
 
 
-    }catch(error:any){
-
-      console.error(
-        "GET TEAM BY ID ERROR:",
-        error
-      );
+    }
+    catch(error:any){
 
 
       return res.status(500).json({
+
         success:false,
-        status:"500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to fetch team member.",
+
+        message:error.message
+
       });
+
 
     }
 
-  };
+  }
 
 
-  // ==========================================
-  // UPDATE TEAM MEMBER
-  // PUT /api/teams/:id
-  // ==========================================
-  update = async (
-    req: Request,
-    res: Response
-  ): Promise<Response> => {
 
-    try {
+
+
+  // ==========================
+  // UPDATE
+  // ==========================
+
+
+  static async update(
+    req:Request,
+    res:Response
+  ){
+
+    try{
+
 
       const id =
         Number(req.params.id);
 
 
-      const updated =
-        await this.service.updateTeam(
+
+      const data = {
+
+
+        ...req.body,
+
+
+        designationId:
+          Number(req.body.designationId),
+
+
+
+        image:
+
+          req.file
+
+          ? `/uploads/${req.file.filename}`
+
+          : req.body.image ?? null
+
+
+      };
+
+
+
+      const result =
+        await teamService.update(
           id,
-          req.body
+          data
         );
 
 
-      if(!updated){
 
-        return res.status(404).json({
-          success:false,
-          status:"404 Not Found",
-          message:"Team member not found.",
-        });
+      return res.json({
 
-      }
-
-
-      return res.status(200).json({
         success:true,
-        status:"200 OK",
-        message:
-          "Team member updated successfully.",
+
+        message:"Team updated",
+
+        data:result
+
       });
 
 
-    }catch(error:any){
-
-      console.error(
-        "UPDATE TEAM ERROR:",
-        error
-      );
+    }
+    catch(error:any){
 
 
       return res.status(500).json({
+
         success:false,
-        status:"500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to update team member.",
+
+        message:error.message
+
       });
+
 
     }
 
-  };
+  }
 
 
-  // ==========================================
-  // DELETE TEAM MEMBER
-  // DELETE /api/teams/:id
-  // ==========================================
-  remove = async (
-    req: Request,
-    res: Response
-  ): Promise<Response> => {
 
-    try {
+
+
+  // ==========================
+  // DELETE
+  // ==========================
+
+
+  static async delete(
+    req:Request,
+    res:Response
+  ){
+
+    try{
+
 
       const id =
         Number(req.params.id);
 
 
-      const deleted =
-        await this.service.deleteTeam(id);
+
+      await teamService.delete(id);
 
 
-      if(!deleted){
 
-        return res.status(404).json({
-          success:false,
-          status:"404 Not Found",
-          message:"Team member not found.",
-        });
+      return res.json({
 
-      }
-
-
-      return res.status(200).json({
         success:true,
-        status:"200 OK",
-        message:
-          "Team member deleted successfully.",
+
+        message:"Team deleted"
+
       });
 
 
-    }catch(error:any){
-
-      console.error(
-        "DELETE TEAM ERROR:",
-        error
-      );
+    }
+    catch(error:any){
 
 
       return res.status(500).json({
+
         success:false,
-        status:"500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to delete team member.",
+
+        message:error.message
+
       });
+
 
     }
 
-  };
+  }
+
+
 
 }

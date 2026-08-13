@@ -1,23 +1,23 @@
 export interface Team {
+
   id?: number;
 
-  name: string;
+  name:string;
 
-  designation: string;
+  designationId:number;
 
-  specialization: string;
+  specialization?:string | null;
 
-  experience: string;
+  experience?:string | null;
 
-  email?: string | null;
+  email?:string | null;
 
-  phone?: string | null;
+  phone?:string | null;
 
-  image?: string | null;
+  image?:string | null;
 
-  status?: "Active" | "Inactive";
+  bio?:string | null;
 
-  created_at?: Date;
+  status:"Active" | "Inactive";
 
-  updated_at?: Date;
 }

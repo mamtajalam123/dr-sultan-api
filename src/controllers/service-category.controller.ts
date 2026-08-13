@@ -11,20 +11,49 @@ export class ServiceCategoryController {
   create = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
     try {
-      const id = await this.service.createCategory(
-        req.body
-      );
+      const { name } = req.body;
+
+      if (!name || !name.trim()) {
+        return res.status(400).json({
+          success: false,
+          status: "400 Bad Request",
+          message: "Category name is required.",
+        });
+      }
+
+      // Check duplicate
+      const exists =
+        await this.service.categoryExists(
+          name
+        );
+
+      if (exists) {
+        return res.status(409).json({
+          success: false,
+          status: "409 Conflict",
+          message: "Category already exists.",
+        });
+      }
+
+      const id =
+        await this.service.createCategory(
+          req.body
+        );
 
       return res.status(201).json({
         success: true,
         status: "201 Created",
-        message: "Service category created successfully.",
+        message:
+          "Service category created successfully.",
         id,
       });
     } catch (error: any) {
-      console.error(error);
+      console.error(
+        "CREATE CATEGORY ERROR:",
+        error
+      );
 
       return res.status(500).json({
         success: false,
@@ -40,31 +69,55 @@ export class ServiceCategoryController {
   // GET ALL CATEGORIES
   // GET /api/service-categories
   // ==========================================
-  getAll = async (
-    req: Request,
-    res: Response
-  ) => {
-    try {
-      const categories =
-        await this.service.getCategories();
+getAll = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
 
-      return res.status(200).json({
-        success: true,
-        status: "200 OK",
-        data: categories,
-      });
-    } catch (error: any) {
-      console.error(error);
+  try {
 
-      return res.status(500).json({
-        success: false,
-        status: "500 Internal Server Error",
-        message:
-          error.message ||
-          "Failed to fetch service categories.",
-      });
-    }
-  };
+    const categories =
+      await this.service.getCategories();
+
+
+    console.log(
+      "SERVICE CATEGORIES FROM DB:",
+      categories
+    );
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      status: "200 OK",
+
+      data: categories,
+
+    });
+
+
+  } catch(error:any) {
+
+    console.error(
+      "GET CATEGORY ERROR:",
+      error
+    );
+
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:
+        error.message ||
+        "Failed to fetch service categories.",
+
+    });
+
+  }
+
+};
 
   // ==========================================
   // GET CATEGORY BY ID
@@ -73,18 +126,21 @@ export class ServiceCategoryController {
   getById = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
     try {
       const id = Number(req.params.id);
 
       const category =
-        await this.service.getCategoryById(id);
+        await this.service.getCategoryById(
+          id
+        );
 
       if (!category) {
         return res.status(404).json({
           success: false,
           status: "404 Not Found",
-          message: "Service category not found.",
+          message:
+            "Service category not found.",
         });
       }
 
@@ -94,7 +150,10 @@ export class ServiceCategoryController {
         data: category,
       });
     } catch (error: any) {
-      console.error(error);
+      console.error(
+        "GET CATEGORY BY ID ERROR:",
+        error
+      );
 
       return res.status(500).json({
         success: false,
@@ -113,7 +172,7 @@ export class ServiceCategoryController {
   update = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
     try {
       const id = Number(req.params.id);
 
@@ -127,7 +186,8 @@ export class ServiceCategoryController {
         return res.status(404).json({
           success: false,
           status: "404 Not Found",
-          message: "Service category not found.",
+          message:
+            "Service category not found.",
         });
       }
 
@@ -138,7 +198,10 @@ export class ServiceCategoryController {
           "Service category updated successfully.",
       });
     } catch (error: any) {
-      console.error(error);
+      console.error(
+        "UPDATE CATEGORY ERROR:",
+        error
+      );
 
       return res.status(500).json({
         success: false,
@@ -157,18 +220,21 @@ export class ServiceCategoryController {
   remove = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
     try {
       const id = Number(req.params.id);
 
       const deleted =
-        await this.service.deleteCategory(id);
+        await this.service.deleteCategory(
+          id
+        );
 
       if (!deleted) {
         return res.status(404).json({
           success: false,
           status: "404 Not Found",
-          message: "Service category not found.",
+          message:
+            "Service category not found.",
         });
       }
 
@@ -179,7 +245,10 @@ export class ServiceCategoryController {
           "Service category deleted successfully.",
       });
     } catch (error: any) {
-      console.error(error);
+      console.error(
+        "DELETE CATEGORY ERROR:",
+        error
+      );
 
       return res.status(500).json({
         success: false,

@@ -1,35 +1,97 @@
 import { Router } from "express";
+
 import { GalleryController } from "../controllers/gallery.controller";
-// import { authMiddleware } from "../middlewares/auth.middleware";
+import { authMiddleware } from "../middleware/auth.middleware";
+import { uploadGalleryImage } from "../middleware/upload.middleware";
+
+// ==========================================
+// ROUTER
+// ==========================================
 
 const router = Router();
 
-const controller = new GalleryController();
+// ==========================================
+// CONTROLLER
+// ==========================================
+
+const controller =
+  new GalleryController();
 
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
 
-// Get All Gallery
-router.get("/", controller.getAll);
+// ------------------------------------------
+// GET ALL GALLERY
+// GET /api/gallery
+// ------------------------------------------
 
-// Get Gallery By ID
-router.get("/:id", controller.getById);
+router.get(
+  "/",
+  controller.getAll.bind(controller)
+);
+
+// ------------------------------------------
+// GET GALLERY BY ID
+// GET /api/gallery/:id
+// ------------------------------------------
+
+router.get(
+  "/:id",
+  controller.getById.bind(controller)
+);
 
 // ==========================================
 // PROTECTED ROUTES
 // ==========================================
 
-// Uncomment if using JWT Authentication
-// router.use(authMiddleware);
+// ------------------------------------------
+// CREATE GALLERY
+// POST /api/gallery
+//
+// Auth required
+// Multipart/form-data
+// Image field: image
+// ------------------------------------------
 
-// Create Gallery
-router.post("/", controller.create);
+router.post(
+  "/",
+  authMiddleware,
+  uploadGalleryImage.single("image"),
+  controller.create.bind(controller)
+);
 
-// Update Gallery
-router.put("/:id", controller.update);
+// ------------------------------------------
+// UPDATE GALLERY
+// PUT /api/gallery/:id
+//
+// Auth required
+// Multipart/form-data
+// Image field: image
+// ------------------------------------------
 
-// Delete Gallery
-router.delete("/:id", controller.remove);
+router.put(
+  "/:id",
+  authMiddleware,
+  uploadGalleryImage.single("image"),
+  controller.update.bind(controller)
+);
+
+// ------------------------------------------
+// DELETE GALLERY
+// DELETE /api/gallery/:id
+//
+// Auth required
+// ------------------------------------------
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  controller.remove.bind(controller)
+);
+
+// ==========================================
+// EXPORT
+// ==========================================
 
 export default router;

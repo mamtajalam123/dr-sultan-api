@@ -4,8 +4,7 @@ import { AppointmentService } from "../services/appointment.service";
 
 export class AppointmentController {
 
-  private service =
-    new AppointmentService();
+  private service = new AppointmentService();
 
 
 
@@ -16,7 +15,7 @@ export class AppointmentController {
   create = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
     try {
 
@@ -27,12 +26,11 @@ export class AppointmentController {
         );
 
 
-
       return res.status(201).json({
 
         success: true,
 
-        status:201,
+        status: 201,
 
         message:
           "Appointment created successfully.",
@@ -42,7 +40,6 @@ export class AppointmentController {
       });
 
 
-
     } catch(error) {
 
 
@@ -50,7 +47,6 @@ export class AppointmentController {
         "CREATE APPOINTMENT ERROR:",
         error
       );
-
 
 
       return res.status(500).json({
@@ -85,7 +81,7 @@ export class AppointmentController {
   getAll = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
 
     try {
@@ -102,18 +98,18 @@ export class AppointmentController {
 
         status:200,
 
-        data:
-          appointments
+        data: appointments
 
       });
-
 
 
     } catch(error) {
 
 
-      console.error(error);
-
+      console.error(
+        "GET ALL APPOINTMENT ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
@@ -144,7 +140,7 @@ export class AppointmentController {
   getById = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
 
     try {
@@ -155,10 +151,29 @@ export class AppointmentController {
 
 
 
+      if(Number.isNaN(id)){
+
+        return res.status(400).json({
+
+          success:false,
+
+          status:400,
+
+          message:
+            "Invalid appointment id."
+
+        });
+
+      }
+
+
+
+
       const appointment =
         await this.service.getAppointmentById(
           id
         );
+
 
 
 
@@ -176,7 +191,6 @@ export class AppointmentController {
 
         });
 
-
       }
 
 
@@ -188,8 +202,7 @@ export class AppointmentController {
 
         status:200,
 
-        data:
-          appointment
+        data: appointment
 
       });
 
@@ -198,8 +211,10 @@ export class AppointmentController {
     } catch(error) {
 
 
-      console.error(error);
-
+      console.error(
+        "GET APPOINTMENT ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
@@ -218,19 +233,46 @@ export class AppointmentController {
 
 
   };
-    // ==========================================
+
+
+
+
+
+
+
+  // ==========================================
   // UPDATE APPOINTMENT
   // PUT /api/appointments/:id
   // ==========================================
   update = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
+
 
     try {
 
+
       const id =
         Number(req.params.id);
+
+
+
+      if(Number.isNaN(id)){
+
+        return res.status(400).json({
+
+          success:false,
+
+          status:400,
+
+          message:
+            "Invalid appointment id."
+
+        });
+
+      }
+
 
 
 
@@ -242,7 +284,9 @@ export class AppointmentController {
 
 
 
-      if (!result) {
+
+      if(!result){
+
 
         return res.status(404).json({
 
@@ -256,6 +300,8 @@ export class AppointmentController {
         });
 
       }
+
+
 
 
 
@@ -275,8 +321,10 @@ export class AppointmentController {
     } catch(error) {
 
 
-      console.error(error);
-
+      console.error(
+        "UPDATE APPOINTMENT ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
@@ -299,6 +347,8 @@ export class AppointmentController {
 
 
 
+
+
   // ==========================================
   // UPDATE STATUS
   // PATCH /api/appointments/:id/status
@@ -306,7 +356,7 @@ export class AppointmentController {
   updateStatus = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
 
     try {
@@ -317,13 +367,29 @@ export class AppointmentController {
 
 
 
-      const { status } =
-        req.body;
+      if(Number.isNaN(id)){
+
+        return res.status(400).json({
+
+          success:false,
+
+          status:400,
+
+          message:
+            "Invalid appointment id."
+
+        });
+
+      }
+
+
+
+      const status =
+        req.body.status?.trim();
 
 
 
 
-      // Allowed status dropdown values
       const allowedStatus = [
 
         "Pending",
@@ -339,9 +405,7 @@ export class AppointmentController {
 
 
 
-      if(
-        !allowedStatus.includes(status)
-      ){
+      if(!allowedStatus.includes(status)){
 
 
         return res.status(400).json({
@@ -375,7 +439,6 @@ export class AppointmentController {
 
       if(!result){
 
-
         return res.status(404).json({
 
           success:false,
@@ -386,7 +449,6 @@ export class AppointmentController {
             "Appointment not found."
 
         });
-
 
       }
 
@@ -410,8 +472,10 @@ export class AppointmentController {
     } catch(error){
 
 
-      console.error(error);
-
+      console.error(
+        "UPDATE STATUS ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
@@ -429,14 +493,22 @@ export class AppointmentController {
     }
 
   };
-    // ==========================================
+
+
+
+
+
+
+
+
+  // ==========================================
   // UPDATE PAYMENT
   // PATCH /api/appointments/:id/payment
   // ==========================================
   updatePayment = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
 
     try {
@@ -447,32 +519,7 @@ export class AppointmentController {
 
 
 
-      const { payment } =
-        req.body;
-
-
-
-
-      // Allowed payment dropdown values
-      const allowedPayments = [
-
-        "Paid",
-
-        "Unpaid",
-
-        "Pending",
-
-        "Failed"
-
-      ];
-
-
-
-
-      if(
-        !allowedPayments.includes(payment)
-      ){
-
+      if(Number.isNaN(id)){
 
         return res.status(400).json({
 
@@ -481,15 +528,35 @@ export class AppointmentController {
           status:400,
 
           message:
-            "Invalid payment status.",
-
-          allowedValues:
-            allowedPayments
+            "Invalid appointment id."
 
         });
 
-
       }
+
+
+
+
+      const payment =
+        req.body.payment?.trim();
+
+
+
+
+
+ const allowedPayments = [
+  "Pending",
+  "Paid",
+  "Partially Paid",
+  "Refunded"
+];
+
+if(!allowedPayments.includes(payment)){
+   return res.status(400).json({
+      message:"Invalid payment status."
+   });
+}
+
 
 
 
@@ -540,8 +607,10 @@ export class AppointmentController {
     } catch(error){
 
 
-      console.error(error);
-
+      console.error(
+        "UPDATE PAYMENT ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
@@ -564,6 +633,8 @@ export class AppointmentController {
 
 
 
+
+
   // ==========================================
   // DELETE APPOINTMENT
   // DELETE /api/appointments/:id
@@ -571,7 +642,7 @@ export class AppointmentController {
   remove = async (
     req: Request,
     res: Response
-  ) => {
+  ): Promise<Response> => {
 
 
     try {
@@ -582,11 +653,30 @@ export class AppointmentController {
 
 
 
+      if(Number.isNaN(id)){
+
+        return res.status(400).json({
+
+          success:false,
+
+          status:400,
+
+          message:
+            "Invalid appointment id."
+
+        });
+
+      }
+
+
+
+
 
       const result =
         await this.service.deleteAppointment(
           id
         );
+
 
 
 
@@ -611,6 +701,7 @@ export class AppointmentController {
 
 
 
+
       return res.status(200).json({
 
         success:true,
@@ -627,8 +718,10 @@ export class AppointmentController {
     } catch(error){
 
 
-      console.error(error);
-
+      console.error(
+        "DELETE APPOINTMENT ERROR:",
+        error
+      );
 
 
       return res.status(500).json({
