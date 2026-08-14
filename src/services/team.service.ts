@@ -5,12 +5,15 @@ import { Team } from "../types/team";
 const repo = new TeamRepository();
 
 
+
 export class TeamService {
 
 
-  // ==========================
-  // CREATE TEAM
-  // ==========================
+
+  // ==========================================
+  // CREATE TEAM MEMBER
+  // ==========================================
+
 
   async create(data:any){
 
@@ -24,6 +27,7 @@ export class TeamService {
     }
 
 
+
     if(!data.designationId){
 
       throw new Error(
@@ -34,10 +38,14 @@ export class TeamService {
 
 
 
+
+
     const team:Team = {
 
 
-      name:data.name,
+      name:
+        data.name.trim(),
+
 
 
       designationId:
@@ -46,42 +54,67 @@ export class TeamService {
         ),
 
 
+
       specialization:
-        data.specialization || null,
+        data.specialization
+        ||
+        null,
+
 
 
       experience:
-        data.experience || null,
+        data.experience
+        ||
+        null,
+
 
 
       email:
-        data.email || null,
+        data.email
+        ||
+        null,
+
 
 
       phone:
-        data.phone || null,
+        data.phone
+        ||
+        null,
 
-
-      bio:
-        data.bio || null,
 
 
       image:
-        data.image || null,
+        data.image
+        ||
+        null,
+
+
+
+      bio:
+        data.bio
+        ||
+        null,
+
 
 
       status:
-        data.status || "Active"
+        data.status
+        ||
+        "Active"
 
 
     };
 
 
 
+
+
     console.log(
-      "SERVICE TEAM DATA:",
+      "CREATE TEAM SERVICE:",
       team
     );
+
+
 
 
 
@@ -96,13 +129,20 @@ export class TeamService {
 
 
 
-  // ==========================
-  // GET ALL
-  // ==========================
+
+
+
+
+  // ==========================================
+  // GET ALL TEAM MEMBERS
+  // ==========================================
+
 
   async getAll(){
 
+
     return await repo.findAll();
+
 
   }
 
@@ -111,37 +151,138 @@ export class TeamService {
 
 
 
-  // ==========================
-  // GET BY ID
-  // ==========================
+
+
+
+  // ==========================================
+  // GET TEAM BY ID
+  // ==========================================
+
 
   async getById(
     id:number
   ){
 
+
     return await repo.findById(
       id
     );
 
+
   }
 
 
 
 
 
-  // ==========================
-  // UPDATE
-  // ==========================
+
+
+
+
+  // ==========================================
+  // UPDATE TEAM MEMBER
+  // ==========================================
+
 
   async update(
+
     id:number,
-    data:Team
+
+    data:any
+
   ){
 
-    return await repo.update(
-      id,
-      data
+
+
+    const team:Team = {
+
+
+      name:
+        data.name.trim(),
+
+
+
+      designationId:
+        Number(
+          data.designationId
+        ),
+
+
+
+      specialization:
+        data.specialization
+        ||
+        null,
+
+
+
+      experience:
+        data.experience
+        ||
+        null,
+
+
+
+      email:
+        data.email
+        ||
+        null,
+
+
+
+      phone:
+        data.phone
+        ||
+        null,
+
+
+
+      bio:
+        data.bio
+        ||
+        null,
+
+
+
+      status:
+        data.status
+        ||
+        "Active",
+
+
+
+      // IMPORTANT
+      // only update if image exists
+
+      image:
+        data.image
+        ||
+        undefined
+
+
+    };
+
+
+
+
+
+    console.log(
+      "UPDATE TEAM SERVICE:",
+      team
     );
+
+
+
+
+
+    return await repo.update(
+
+      id,
+
+      team
+
+    );
+
 
   }
 
@@ -149,19 +290,29 @@ export class TeamService {
 
 
 
-  // ==========================
+
+
+
+
+  // ==========================================
   // DELETE
-  // ==========================
+  // ==========================================
+
 
   async delete(
+
     id:number
+
   ){
+
 
     return await repo.delete(
       id
     );
 
+
   }
+
 
 
 }

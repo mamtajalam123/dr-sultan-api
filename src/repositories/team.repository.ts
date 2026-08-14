@@ -5,9 +5,10 @@ import { Team } from "../types/team";
 export class TeamRepository {
 
 
-  // ==========================
+  // ==========================================
   // CREATE TEAM MEMBER
-  // ==========================
+  // ==========================================
+
 
   async create(team: Team) {
 
@@ -33,11 +34,12 @@ export class TeamRepository {
     `;
 
 
+
     const values = [
 
       team.name,
 
-      team.designationId,
+      team.designationId ?? null,
 
       team.specialization ?? null,
 
@@ -57,7 +59,7 @@ export class TeamRepository {
 
 
 
-    const [result]: any =
+    const [result]:any =
       await pool.execute(
         sql,
         values
@@ -67,7 +69,7 @@ export class TeamRepository {
 
     return {
 
-      id: result.insertId,
+      id:result.insertId,
 
       ...team
 
@@ -80,9 +82,11 @@ export class TeamRepository {
 
 
 
-  // ==========================
-  // GET ALL TEAM MEMBERS
-  // ==========================
+
+
+  // ==========================================
+  // GET ALL
+  // ==========================================
 
 
   async findAll(){
@@ -90,51 +94,53 @@ export class TeamRepository {
 
     const sql = `
 
-      SELECT
+
+    SELECT
 
 
-      teams.id,
+    teams.id,
 
-      teams.name,
+    teams.name,
 
-      teams.designation_id,
-
-
-      designations.name AS designation,
+    teams.designation_id,
 
 
-      teams.specialization,
-
-      teams.experience,
-
-      teams.email,
-
-      teams.phone,
-
-      teams.image,
-
-      teams.bio,
-
-      teams.status,
-
-      teams.created_at,
-
-      teams.updated_at
+    designations.name AS designation,
 
 
+    teams.specialization,
 
-      FROM teams
+    teams.experience,
+
+    teams.email,
+
+    teams.phone,
+
+    teams.image,
+
+    teams.bio,
+
+    teams.status,
+
+    teams.created_at,
+
+    teams.updated_at
 
 
 
-      LEFT JOIN designations
-
-
-      ON teams.designation_id = designations.id
+    FROM teams
 
 
 
-      ORDER BY teams.id DESC
+    LEFT JOIN designations
+
+
+    ON teams.designation_id = designations.id
+
+
+
+    ORDER BY teams.id DESC
+
 
 
     `;
@@ -157,9 +163,11 @@ export class TeamRepository {
 
 
 
-  // ==========================
-  // GET SINGLE TEAM MEMBER
-  // ==========================
+
+
+  // ==========================================
+  // GET BY ID
+  // ==========================================
 
 
   async findById(
@@ -167,55 +175,54 @@ export class TeamRepository {
   ){
 
 
-
     const sql = `
 
 
-      SELECT
+    SELECT
 
 
-      teams.id,
+    teams.id,
 
-      teams.name,
+    teams.name,
 
-      teams.designation_id,
-
-
-      designations.name AS designation,
+    teams.designation_id,
 
 
-      teams.specialization,
-
-      teams.experience,
-
-      teams.email,
-
-      teams.phone,
-
-      teams.image,
-
-      teams.bio,
-
-      teams.status,
-
-      teams.created_at,
-
-      teams.updated_at
+    designations.name AS designation,
 
 
+    teams.specialization,
 
-      FROM teams
+    teams.experience,
+
+    teams.email,
+
+    teams.phone,
+
+    teams.image,
+
+    teams.bio,
+
+    teams.status,
+
+    teams.created_at,
+
+    teams.updated_at
 
 
 
-      LEFT JOIN designations
-
-
-      ON teams.designation_id = designations.id
+    FROM teams
 
 
 
-      WHERE teams.id=?
+    LEFT JOIN designations
+
+
+    ON teams.designation_id = designations.id
+
+
+
+    WHERE teams.id=?
 
 
 
@@ -246,9 +253,11 @@ export class TeamRepository {
 
 
 
-  // ==========================
+
+
+  // ==========================================
   // UPDATE TEAM MEMBER
-  // ==========================
+  // ==========================================
 
 
   async update(
@@ -261,55 +270,46 @@ export class TeamRepository {
 
 
 
-    const sql = `
+    let sql = `
+
+    UPDATE teams SET
 
 
-      UPDATE teams SET
+    name=?,
 
 
-      name=?,
+    designation_id=?,
 
 
-      designation_id=?,
+    specialization=?,
 
 
-      specialization=?,
+    experience=?,
 
 
-      experience=?,
+    email=?,
 
 
-      email=?,
+    phone=?,
 
 
-      phone=?,
+    bio=?,
 
 
-      image=?,
-
-
-      bio=?,
-
-
-      status=?
-
-
-
-      WHERE id=?
+    status=?
 
 
     `;
 
 
 
-
-    const values = [
+    const values:any[] = [
 
 
       team.name,
 
 
-      team.designationId,
+      team.designationId ?? null,
 
 
       team.specialization ?? null,
@@ -324,19 +324,59 @@ export class TeamRepository {
       team.phone ?? null,
 
 
-      team.image ?? null,
-
-
       team.bio ?? null,
 
 
-      team.status ?? "Active",
-
-
-      id
+      team.status ?? "Active"
 
 
     ];
+
+
+
+
+
+    // ==================================
+    // UPDATE IMAGE ONLY IF NEW IMAGE
+    // ==================================
+
+
+    if(
+      team.image
+    ){
+
+
+      sql += `,
+
+      image=?
+
+      `;
+
+
+      values.push(
+        team.image
+      );
+
+
+    }
+
+
+
+
+
+    sql += `
+
+      WHERE id=?
+
+    `;
+
+
+
+    values.push(
+      id
+    );
+
+
 
 
 
@@ -369,9 +409,10 @@ export class TeamRepository {
 
 
 
-  // ==========================
-  // DELETE TEAM MEMBER
-  // ==========================
+
+  // ==========================================
+  // DELETE
+  // ==========================================
 
 
   async delete(
@@ -379,7 +420,6 @@ export class TeamRepository {
     id:number
 
   ){
-
 
 
     await pool.execute(
@@ -401,11 +441,11 @@ export class TeamRepository {
     );
 
 
-
     return true;
 
 
   }
+
 
 
 }

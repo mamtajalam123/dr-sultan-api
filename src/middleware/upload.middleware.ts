@@ -2,296 +2,375 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
+
+
 // =====================================================
 // BASE UPLOAD DIRECTORY
 // =====================================================
 
-const uploadBaseDir = path.resolve(
-  process.cwd(),
-  "uploads"
-);
+const uploadBaseDir =
+  path.resolve(
+    process.cwd(),
+    "uploads"
+  );
+
+
 
 // =====================================================
-// ENSURE BASE UPLOAD DIRECTORY EXISTS
+// CREATE BASE DIRECTORY
 // =====================================================
 
-if (!fs.existsSync(uploadBaseDir)) {
-  fs.mkdirSync(uploadBaseDir, {
-    recursive: true,
-  });
+if(
+  !fs.existsSync(
+    uploadBaseDir
+  )
+){
+
+  fs.mkdirSync(
+    uploadBaseDir,
+    {
+      recursive:true
+    }
+  );
+
 }
 
+
+
 // =====================================================
-// CREATE UPLOAD DIRECTORY
+// CREATE FOLDER
 // =====================================================
+
 
 const createUploadDir = (
-  folder: string
-): string => {
-  const uploadDir = path.join(
-    uploadBaseDir,
-    folder
-  );
+  folder:string
+)=>{
 
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, {
-      recursive: true,
-    });
 
-    console.log(
-      "UPLOAD DIRECTORY CREATED:",
-      uploadDir
+  const dir =
+    path.join(
+      uploadBaseDir,
+      folder
     );
+
+
+  if(
+    !fs.existsSync(dir)
+  ){
+
+    fs.mkdirSync(
+      dir,
+      {
+        recursive:true
+      }
+    );
+
   }
 
-  return uploadDir;
+
+  return dir;
+
+
 };
 
+
+
+
+
 // =====================================================
-// ALLOWED IMAGE TYPES
+// IMAGE TYPES
 // =====================================================
+
 
 const allowedMimeTypes = [
+
   "image/jpeg",
-  "image/jpg",
+
   "image/png",
+
   "image/webp",
-  "image/gif",
+
+  "image/gif"
+
 ];
 
+
+
+
+
+
+
 // =====================================================
-// IMAGE FILE FILTER
+// FILE FILTER
 // =====================================================
 
-const fileFilter: multer.Options["fileFilter"] = (
-  _req,
-  file,
-  cb
-) => {
-  console.log(
-    "================================="
-  );
+
+const fileFilter:multer.Options["fileFilter"] =
+(
+ req,
+ file,
+ cb
+)=>{
+
 
   console.log(
-    "UPLOAD FILE"
-  );
-
-  console.log(
-    "FIELD NAME:",
-    file.fieldname
-  );
-
-  console.log(
-    "ORIGINAL NAME:",
-    file.originalname
-  );
-
-  console.log(
-    "MIME TYPE:",
+    "UPLOAD:",
+    file.fieldname,
+    file.originalname,
     file.mimetype
   );
 
-  console.log(
-    "================================="
-  );
 
-  if (
+
+  if(
     allowedMimeTypes.includes(
       file.mimetype
     )
-  ) {
-    cb(null, true);
-    return;
+  ){
+
+    cb(
+      null,
+      true
+    );
+
+  }
+  else{
+
+
+    cb(
+      new Error(
+        "Invalid image format"
+      )
+    );
+
+
   }
 
-  cb(
-    new Error(
-      "Only JPG, JPEG, PNG, WEBP and GIF images are allowed."
-    )
-  );
+
 };
 
+
+
+
+
+
+
 // =====================================================
-// CREATE STORAGE
+// STORAGE
 // =====================================================
+
 
 const createStorage = (
-  folder: string,
-  prefix: string
-): multer.StorageEngine => {
-  const uploadDir =
-    createUploadDir(folder);
+ folder:string,
+ prefix:string
+)=>{
 
-  return multer.diskStorage({
-    // =================================================
-    // DESTINATION
-    // =================================================
 
-    destination: (
-      _req,
-      _file,
-      cb
-    ) => {
-      console.log(
-        "UPLOAD DESTINATION:",
-        uploadDir
-      );
+ const uploadDir =
+ createUploadDir(folder);
 
-      cb(
-        null,
-        uploadDir
-      );
-    },
 
-    // =================================================
-    // FILE NAME
-    // =================================================
 
-    filename: (
-      _req,
-      file,
-      cb
-    ) => {
-      const extension =
-        path
-          .extname(
-            file.originalname
-          )
-          .toLowerCase();
+ return multer.diskStorage({
 
-      const filename =
-        `${prefix}-${Date.now()}-${Math.round(
-          Math.random() * 1e9
-        )}${extension}`;
 
-      console.log(
-        "GENERATED FILE NAME:",
-        filename
-      );
 
-      console.log(
-        "FULL FILE PATH:",
-        path.join(
-          uploadDir,
-          filename
-        )
-      );
+ destination(
+  req,
+  file,
+  cb
+ ){
 
-      cb(
-        null,
-        filename
-      );
-    },
-  });
-};
-
-// =====================================================
-// COMMON UPLOAD LIMIT
-// =====================================================
-
-const uploadLimits: multer.Options["limits"] = {
-  fileSize:
-    5 * 1024 * 1024,
-};
-
-// =====================================================
-// FEEDBACK IMAGE UPLOAD
-//
-// FormData field:
-// patientImage
-//
-// Physical folder:
-// uploads/feedback/
-//
-// Database value:
-// /uploads/feedback/filename.jpg
-// =====================================================
-
-const feedbackStorage =
-  createStorage(
-    "feedback",
-    "feedback"
+  console.log(
+    "UPLOAD DIR:",
+    uploadDir
   );
+
+
+  cb(
+    null,
+    uploadDir
+  );
+
+
+ },
+
+
+
+
+
+ filename(
+  req,
+  file,
+  cb
+ ){
+
+
+  const ext =
+    path.extname(
+      file.originalname
+    )
+    .toLowerCase();
+
+
+
+  const filename =
+    `${prefix}-${Date.now()}-${Math.floor(
+      Math.random()*100000
+    )}${ext}`;
+
+
+
+  console.log(
+    "FILE:",
+    filename
+  );
+
+
+
+  cb(
+    null,
+    filename
+  );
+
+
+ }
+
+
+
+ });
+
+
+};
+
+
+
+
+
+
+
+
+// =====================================================
+// LIMIT
+// =====================================================
+
+
+const uploadLimits = {
+
+ fileSize:
+   5 * 1024 * 1024
+
+};
+
+
+
+
+
+
+
+
+// =====================================================
+// FEEDBACK
+// =====================================================
+
 
 export const uploadFeedback =
-  multer({
-    storage:
-      feedbackStorage,
 
-    fileFilter,
+multer({
 
-    limits:
-      uploadLimits,
-  });
+ storage:
+ createStorage(
+   "feedback",
+   "feedback"
+ ),
+
+ fileFilter,
+
+ limits:
+ uploadLimits
+
+});
+
+
+
+
+
+
 
 // =====================================================
-// SERVICE IMAGE UPLOAD
-//
-// Physical folder:
-// uploads/services/
+// SERVICE
 // =====================================================
 
-const serviceStorage =
-  createStorage(
-    "services",
-    "service"
-  );
 
 export const uploadServiceImage =
-  multer({
-    storage:
-      serviceStorage,
 
-    fileFilter,
+multer({
 
-    limits:
-      uploadLimits,
-  });
+ storage:
+ createStorage(
+   "services",
+   "service"
+ ),
+
+ fileFilter,
+
+ limits:
+ uploadLimits
+
+});
+
+
+
+
+
+
 
 // =====================================================
-// TEAM IMAGE UPLOAD
-//
-// Physical folder:
-// uploads/team/
+// TEAM
 // =====================================================
 
-const teamStorage =
-  createStorage(
-    "team",
-    "team"
-  );
 
 export const uploadTeamImage =
-  multer({
-    storage:
-      teamStorage,
 
-    fileFilter,
+multer({
 
-    limits:
-      uploadLimits,
-  });
+ storage:
+ createStorage(
+   "team",
+   "team"
+ ),
+
+ fileFilter,
+
+ limits:
+ uploadLimits
+
+});
+
+
+
+
+
+
 
 // =====================================================
-// GALLERY IMAGE UPLOAD
-//
-// Physical folder:
-// uploads/gallery/
+// GALLERY
 // =====================================================
 
-const galleryStorage =
-  createStorage(
-    "gallery",
-    "gallery"
-  );
 
 export const uploadGalleryImage =
-  multer({
-    storage:
-      galleryStorage,
 
-    fileFilter,
+multer({
 
-    limits:
-      uploadLimits,
-  });
+ storage:
+ createStorage(
+   "gallery",
+   "gallery"
+ ),
+
+ fileFilter,
+
+ limits:
+ uploadLimits
+
+});

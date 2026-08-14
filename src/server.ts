@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import fs from "fs";
 
 // ==========================================
 // ROUTES
@@ -17,11 +18,13 @@ import teamRoutes from "./routes/team.routes";
 import feedbackRoutes from "./routes/feedback.routes";
 import galleryRoutes from "./routes/gallery.routes";
 
+
 // ==========================================
 // APP
 // ==========================================
 
 const app = express();
+
 
 // ==========================================
 // CORS
@@ -29,48 +32,71 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    credentials: true,
+    origin:
+      "http://localhost:3000",
+
+    credentials:true,
   })
 );
 
+
 // ==========================================
-// BODY PARSERS
+// BODY PARSER
 // ==========================================
 
-app.use(express.json());
+app.use(
+  express.json()
+);
+
 
 app.use(
   express.urlencoded({
-    extended: true,
+    extended:true,
   })
 );
 
-// ==========================================
-// COOKIE PARSER
-// ==========================================
-
-app.use(cookieParser());
 
 // ==========================================
-// STATIC UPLOADS
-// ==========================================
-//
-// IMPORTANT:
-//
-// upload.middleware.ts uses:
-//
-// process.cwd()/uploads
-//
-// Therefore server.ts must use
-// the SAME location.
-//
+// COOKIE
 // ==========================================
 
-const uploadsPath = path.resolve(
-  process.cwd(),
-  "uploads"
+app.use(
+  cookieParser()
 );
+
+
+
+// ==========================================
+// UPLOAD PATH
+// ==========================================
+
+
+const uploadsPath =
+  path.resolve(
+    process.cwd(),
+    "uploads"
+  );
+
+
+
+// Create uploads folder automatically
+
+if(
+  !fs.existsSync(
+    uploadsPath
+  )
+){
+
+  fs.mkdirSync(
+    uploadsPath,
+    {
+      recursive:true,
+    }
+  );
+
+}
+
+
 
 const feedbackUploadsPath =
   path.join(
@@ -78,11 +104,13 @@ const feedbackUploadsPath =
     "feedback"
   );
 
+
 const galleryUploadsPath =
   path.join(
     uploadsPath,
     "gallery"
   );
+
 
 const serviceUploadsPath =
   path.join(
@@ -90,282 +118,372 @@ const serviceUploadsPath =
     "services"
   );
 
+
 const teamUploadsPath =
   path.join(
     uploadsPath,
     "team"
   );
 
+
+
+
+// Create sub folders
+
+[
+  feedbackUploadsPath,
+  galleryUploadsPath,
+  serviceUploadsPath,
+  teamUploadsPath
+
+].forEach(
+  (folder)=>{
+
+    if(
+      !fs.existsSync(folder)
+    ){
+
+      fs.mkdirSync(
+        folder,
+        {
+          recursive:true,
+        }
+      );
+
+    }
+
+  }
+);
+
+
+
+
 // ==========================================
-// UPLOAD DEBUG
+// DEBUG
 // ==========================================
 
+
 console.log(
-  "=========================================="
+  "=================================="
 );
 
 console.log(
-  "UPLOAD CONFIGURATION"
+  "UPLOAD CONFIG"
 );
 
+
 console.log(
-  "CURRENT WORKING DIRECTORY:",
+  "ROOT:",
   process.cwd()
 );
 
+
 console.log(
-  "UPLOADS DIRECTORY:",
+  "UPLOAD:",
   uploadsPath
 );
 
+
 console.log(
-  "FEEDBACK IMAGES:",
+  "FEEDBACK:",
   feedbackUploadsPath
 );
 
-console.log(
-  "SERVICE IMAGES:",
-  serviceUploadsPath
-);
 
 console.log(
-  "TEAM IMAGES:",
-  teamUploadsPath
-);
-
-console.log(
-  "GALLERY IMAGES:",
+  "GALLERY:",
   galleryUploadsPath
 );
 
+
 console.log(
-  "=========================================="
+  "SERVICE:",
+  serviceUploadsPath
 );
 
+
+console.log(
+  "TEAM:",
+  teamUploadsPath
+);
+
+
+console.log(
+  "=================================="
+);
+
+
+
+
 // ==========================================
-// SERVE UPLOADS
+// STATIC FILE SERVER
 // ==========================================
-//
-// URL:
-//
-// http://localhost:5000/uploads/feedback/test.jpg
-//
-// Physical file:
-//
-// <project>/uploads/feedback/test.jpg
-//
-// ==========================================
+
 
 app.use(
   "/uploads",
   express.static(
-    uploadsPath
+    uploadsPath,
+    {
+
+      extensions:[
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ]
+
+    }
   )
 );
 
+
+
+
 // ==========================================
-// UPLOAD HEALTH CHECK
+// IMAGE TEST ROUTE
 // ==========================================
+
 
 app.get(
   "/uploads/health",
-  (_req, res) => {
-    return res.status(200).json({
-      success: true,
+  (_req,res)=>{
+
+
+    res.status(200).json({
+
+      success:true,
+
       message:
-        "Uploads directory is available.",
-      uploadsPath,
+        "Uploads working",
+
+      path:
+        uploadsPath
+
     });
+
+
   }
 );
+
+
+
+
 
 // ==========================================
 // API ROUTES
 // ==========================================
 
-// ==========================================
-// AUTH
-// ==========================================
+
 
 app.use(
   "/api/auth",
   authRoutes
 );
 
-// ==========================================
-// APPOINTMENTS
-// ==========================================
+
 
 app.use(
   "/api/appointments",
   appointmentRoutes
 );
 
-// ==========================================
-// CONTACTS
-// ==========================================
+
 
 app.use(
   "/api/contacts",
   contactRoutes
 );
 
-// ==========================================
-// SERVICE CATEGORIES
-// ==========================================
+
 
 app.use(
   "/api/service-categories",
   serviceCategoryRoutes
 );
 
-// ==========================================
-// SERVICES
-// ==========================================
+
 
 app.use(
   "/api/services",
   serviceRoutes
 );
 
-// ==========================================
-// DESIGNATIONS
-// ==========================================
+
 
 app.use(
   "/api/designations",
   designationRoutes
 );
 
-// ==========================================
-// TEAM
-// ==========================================
+
 
 app.use(
   "/api/teams",
   teamRoutes
 );
 
-// ==========================================
-// FEEDBACK
-// ==========================================
+
 
 app.use(
   "/api/feedback",
   feedbackRoutes
 );
 
-// ==========================================
-// GALLERY
-// ==========================================
+
 
 app.use(
   "/api/gallery",
   galleryRoutes
 );
 
+
+
+
+
 // ==========================================
-// ROOT HEALTH CHECK
+// HEALTH
 // ==========================================
+
 
 app.get(
   "/",
-  (_req, res) => {
-    return res.status(200).json({
-      success: true,
-      message: "API Running",
+  (_req,res)=>{
+
+
+    res.status(200).json({
+
+      success:true,
+
+      message:
+        "API Running"
+
     });
+
+
   }
 );
 
-// ==========================================
-// API HEALTH CHECK
-// ==========================================
+
 
 app.get(
   "/api/health",
-  (_req, res) => {
-    return res.status(200).json({
-      success: true,
-      status: "200 OK",
+  (_req,res)=>{
+
+
+    res.status(200).json({
+
+      success:true,
+
+      status:
+        "200 OK",
+
       message:
-        "API is healthy",
+        "API Healthy"
+
     });
+
+
   }
 );
 
+
+
+
+
 // ==========================================
-// 404 HANDLER
+// 404
 // ==========================================
+
 
 app.use(
-  (_req, res) => {
-    return res.status(404).json({
-      success: false,
-      status:
-        "404 Not Found",
+  (_req,res)=>{
+
+
+    res.status(404).json({
+
+      success:false,
+
       message:
-        "API endpoint not found.",
+        "API endpoint not found"
+
     });
+
+
   }
 );
 
+
+
+
+
 // ==========================================
-// START SERVER
+// SERVER
 // ==========================================
 
+
 const PORT =
-  Number(process.env.PORT) || 5000;
+  Number(
+    process.env.PORT
+  ) || 5000;
+
+
 
 app.listen(
   PORT,
-  () => {
-    console.log(
-      "=========================================="
-    );
+  ()=>{
+
 
     console.log(
-      `Server running on port ${PORT}`
+      "=================================="
     );
 
-    console.log(
-      `API: http://localhost:${PORT}`
-    );
 
     console.log(
-      `Uploads: http://localhost:${PORT}/uploads`
+      `Server running : ${PORT}`
     );
 
-    console.log(
-      `Feedback images: http://localhost:${PORT}/uploads/feedback`
-    );
 
     console.log(
-      `Service images: http://localhost:${PORT}/uploads/services`
+      `API:
+      http://localhost:${PORT}`
     );
 
-    console.log(
-      `Team images: http://localhost:${PORT}/uploads/team`
-    );
 
     console.log(
-      `Gallery images: http://localhost:${PORT}/uploads/gallery`
+      `Uploads:
+      http://localhost:${PORT}/uploads`
     );
 
-    console.log(
-      `Feedback API: http://localhost:${PORT}/api/feedback`
-    );
 
     console.log(
-      `Gallery API: http://localhost:${PORT}/api/gallery`
+      `Feedback Images:
+      http://localhost:${PORT}/uploads/feedback`
     );
 
-    console.log(
-      `Service Categories: http://localhost:${PORT}/api/service-categories`
-    );
 
     console.log(
-      "=========================================="
+      `Gallery Images:
+      http://localhost:${PORT}/uploads/gallery`
     );
+
+
+    console.log(
+      `Service Images:
+      http://localhost:${PORT}/uploads/services`
+    );
+
+
+    console.log(
+      `Team Images:
+      http://localhost:${PORT}/uploads/team`
+    );
+
+
+    console.log(
+      "=================================="
+    );
+
+
   }
 );

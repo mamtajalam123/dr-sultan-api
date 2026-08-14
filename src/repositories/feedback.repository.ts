@@ -5,6 +5,7 @@ import {
   RowDataPacket,
 } from "mysql2";
 
+
 // ==========================================
 // TYPES
 // ==========================================
@@ -14,478 +15,505 @@ export type FeedbackStatus =
   | "Approved"
   | "Rejected";
 
-interface FeedbackRow
-  extends RowDataPacket {
-  id: number;
 
-  patientName: string;
+interface FeedbackRow extends RowDataPacket {
 
-  patientImage: string | null;
+  id:number;
 
-  treatment: string;
+  patientName:string;
 
-  rating: number;
+  patientImage:string | null;
 
-  review: string;
+  treatment:string;
 
-  status: FeedbackStatus;
+  rating:number;
 
-  date: string | null;
+  review:string;
 
-  createdAt: string | null;
+  status:FeedbackStatus;
 
-  updatedAt: string | null;
+  date:string | null;
+
+  createdAt:string | null;
+
+  updatedAt:string | null;
+
 }
 
-interface FeedbackRepositoryData {
-  patientName: string;
 
-  patientImage?: string | null;
 
-  treatment: string;
+export interface FeedbackRepositoryData {
 
-  rating: number;
+  patientName:string;
 
-  review: string;
+  patientImage?:string | null;
 
-  status: FeedbackStatus;
+  treatment:string;
 
-  date?: string | null;
+  rating:number;
+
+  review:string;
+
+  status:FeedbackStatus;
+
+  date?:string | null;
+
 }
+
+
 
 // ==========================================
 // REPOSITORY
 // ==========================================
 
-export class FeedbackRepository {
+class FeedbackRepository {
 
-  // ==========================================
-  // NORMALIZE IMAGE PATH
-  // ==========================================
 
-  private normalizeImagePath(
-    image?: string | null
-  ): string | null {
 
-    if (
-      typeof image !== "string"
-    ) {
-      return null;
-    }
+private normalizeImagePath(
+  image?: string | null
+) {
 
-    const value =
-      image.trim();
-
-    if (!value) {
-      return null;
-    }
-
-    // ----------------------------------------
-    // Already a complete URL
-    // ----------------------------------------
-
-    if (
-      value.startsWith("http://") ||
-      value.startsWith("https://")
-    ) {
-      return value;
-    }
-
-    // ----------------------------------------
-    // Remove leading slash
-    // ----------------------------------------
-
-    const cleanValue =
-      value.replace(/^\/+/, "");
-
-    // ----------------------------------------
-    // Already uploads path
-    //
-    // uploads/feedback/image.jpg
-    // ----------------------------------------
-
-    if (
-      cleanValue.startsWith(
-        "uploads/"
-      )
-    ) {
-      return `/${cleanValue}`;
-    }
-
-    // ----------------------------------------
-    // Filename only
-    //
-    // image.jpg
-    //
-    // becomes:
-    //
-    // /uploads/feedback/image.jpg
-    // ----------------------------------------
-
-    return `/uploads/feedback/${cleanValue}`;
+  if (!image) {
+    return null;
   }
 
-  // ==========================================
-  // MAP DATABASE ROW
-  // ==========================================
 
-  private mapRow(
-    row: FeedbackRow
-  ): FeedbackRow {
+  let value = image.trim();
 
-    return {
-      ...row,
 
-      patientImage:
-        this.normalizeImagePath(
-          row.patientImage
-        ),
-    };
+  if (!value) {
+    return null;
   }
 
-  // ==========================================
-  // GET ALL FEEDBACK
-  // ==========================================
 
-  async findAll(): Promise<
-    FeedbackRow[]
-  > {
-
-    const sql = `
-      SELECT
-        id,
-        patient_name AS patientName,
-        patient_image AS patientImage,
-        treatment,
-        rating,
-        review,
-        status,
-        date,
-        created_at AS createdAt,
-        updated_at AS updatedAt
-      FROM feedback
-      ORDER BY id DESC
-    `;
-
-    const [rows] =
-      await pool.execute<
-        FeedbackRow[]
-      >(sql);
-
-    const feedbacks =
-      rows.map((row) =>
-        this.mapRow(row)
-      );
-
-    console.log(
-      "========== FEEDBACK FIND ALL =========="
-    );
-
-    console.log(
-      "FEEDBACK ROW COUNT:",
-      feedbacks.length
-    );
-
-    if (
-      feedbacks.length > 0
-    ) {
-      console.log(
-        "FIRST FEEDBACK IMAGE:",
-        feedbacks[0]
-          .patientImage
-      );
-    }
-
-    return feedbacks;
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  ) {
+    return value;
   }
 
-  // ==========================================
-  // GET SINGLE FEEDBACK
-  // ==========================================
 
-  async findById(
-    id: number
-  ): Promise<
-    FeedbackRow | null
-  > {
+  value = value.replace(/^\/+/, "");
 
-    const sql = `
-      SELECT
-        id,
-        patient_name AS patientName,
-        patient_image AS patientImage,
-        treatment,
-        rating,
-        review,
-        status,
-        date,
-        created_at AS createdAt,
-        updated_at AS updatedAt
-      FROM feedback
-      WHERE id = ?
-      LIMIT 1
-    `;
 
-    const [rows] =
-      await pool.execute<
-        FeedbackRow[]
-      >(
-        sql,
-        [id]
-      );
-
-    const row =
-      rows[0] ?? null;
-
-    if (!row) {
-      console.log(
-        "FEEDBACK NOT FOUND:",
-        id
-      );
-
-      return null;
-    }
-
-    const feedback =
-      this.mapRow(row);
-
-    console.log(
-      "========== FEEDBACK FIND BY ID =========="
-    );
-
-    console.log(
-      "FEEDBACK ID:",
-      id
-    );
-
-    console.log(
-      "PATIENT IMAGE:",
-      feedback.patientImage
-    );
-
-    return feedback;
+  if(
+    value.startsWith("uploads/")
+  ){
+    return "/" + value;
   }
 
-  // ==========================================
-  // CREATE FEEDBACK
-  // ==========================================
 
-  async create(
-    data: FeedbackRepositoryData
-  ): Promise<number> {
+  return `/uploads/feedback/${value}`;
 
-    const patientImage =
-      this.normalizeImagePath(
-        data.patientImage
-      );
-
-    const sql = `
-      INSERT INTO feedback (
-        patient_name,
-        patient_image,
-        treatment,
-        rating,
-        review,
-        status,
-        date
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const values = [
-      data.patientName,
-      patientImage,
-      data.treatment,
-      data.rating,
-      data.review,
-      data.status,
-      data.date ?? null,
-    ];
-
-    console.log(
-      "========== FEEDBACK CREATE =========="
-    );
-
-    console.log(
-      "PATIENT NAME:",
-      data.patientName
-    );
-
-    console.log(
-      "PATIENT IMAGE:",
-      patientImage
-    );
-
-    console.log(
-      "SQL VALUES:",
-      values
-    );
-
-    const [result] =
-      await pool.execute<
-        ResultSetHeader
-      >(
-        sql,
-        values
-      );
-
-    console.log(
-      "CREATED FEEDBACK ID:",
-      result.insertId
-    );
-
-    return result.insertId;
-  }
-
-  // ==========================================
-  // UPDATE FEEDBACK
-  // ==========================================
-
-  async update(
-    id: number,
-    data: FeedbackRepositoryData
-  ): Promise<boolean> {
-
-    const patientImage =
-      this.normalizeImagePath(
-        data.patientImage
-      );
-
-    const sql = `
-      UPDATE feedback
-      SET
-        patient_name = ?,
-        patient_image = ?,
-        treatment = ?,
-        rating = ?,
-        review = ?,
-        status = ?,
-        date = ?
-      WHERE id = ?
-    `;
-
-    const values = [
-      data.patientName,
-      patientImage,
-      data.treatment,
-      data.rating,
-      data.review,
-      data.status,
-      data.date ?? null,
-      id,
-    ];
-
-    console.log(
-      "========== FEEDBACK UPDATE =========="
-    );
-
-    console.log(
-      "FEEDBACK ID:",
-      id
-    );
-
-    console.log(
-      "PATIENT IMAGE:",
-      patientImage
-    );
-
-    console.log(
-      "SQL VALUES:",
-      values
-    );
-
-    const [result] =
-      await pool.execute<
-        ResultSetHeader
-      >(
-        sql,
-        values
-      );
-
-    console.log(
-      "UPDATE AFFECTED ROWS:",
-      result.affectedRows
-    );
-
-    return (
-      result.affectedRows > 0
-    );
-  }
-
-  // ==========================================
-  // UPDATE STATUS
-  // ==========================================
-
-  async updateStatus(
-    id: number,
-    status: FeedbackStatus
-  ): Promise<boolean> {
-
-    const sql = `
-      UPDATE feedback
-      SET
-        status = ?
-      WHERE id = ?
-    `;
-
-    const [result] =
-      await pool.execute<
-        ResultSetHeader
-      >(
-        sql,
-        [
-          status,
-          id,
-        ]
-      );
-
-    console.log(
-      "UPDATE FEEDBACK STATUS:",
-      {
-        id,
-        status,
-        affectedRows:
-          result.affectedRows,
-      }
-    );
-
-    return (
-      result.affectedRows > 0
-    );
-  }
-
-  // ==========================================
-  // DELETE FEEDBACK
-  // ==========================================
-
-  async delete(
-    id: number
-  ): Promise<boolean> {
-
-    const sql = `
-      DELETE FROM feedback
-      WHERE id = ?
-    `;
-
-    const [result] =
-      await pool.execute<
-        ResultSetHeader
-      >(
-        sql,
-        [id]
-      );
-
-    console.log(
-      "DELETE FEEDBACK:",
-      {
-        id,
-        affectedRows:
-          result.affectedRows,
-      }
-    );
-
-    return (
-      result.affectedRows > 0
-    );
-  }
 }
+
+
+
+
+private mapRow(
+ row:FeedbackRow
+){
+
+ return {
+
+   ...row,
+
+   patientImage:
+   this.normalizeImagePath(
+    row.patientImage
+   )
+
+ };
+
+}
+
+
+
+
+// ==========================================
+// FIND ALL
+// ==========================================
+
+async findAll()
+:Promise<FeedbackRow[]>{
+
+
+const sql=`
+
+SELECT
+
+id,
+
+patient_name AS patientName,
+
+patient_image AS patientImage,
+
+treatment,
+
+rating,
+
+review,
+
+status,
+
+date,
+
+created_at AS createdAt,
+
+updated_at AS updatedAt
+
+
+FROM feedback
+
+ORDER BY id DESC
+
+`;
+
+
+
+const [rows]=
+await pool.execute<FeedbackRow[]>(
+ sql
+);
+
+
+
+return rows.map(
+ row=>this.mapRow(row)
+);
+
+
+
+}
+
+
+
+
+
+// ==========================================
+// FIND BY ID
+// ==========================================
+
+async findById(
+ id:number
+)
+:Promise<FeedbackRow|null>{
+
+
+const sql=`
+
+SELECT
+
+id,
+
+patient_name AS patientName,
+
+patient_image AS patientImage,
+
+treatment,
+
+rating,
+
+review,
+
+status,
+
+date,
+
+created_at AS createdAt,
+
+updated_at AS updatedAt
+
+
+FROM feedback
+
+WHERE id=?
+
+LIMIT 1
+
+`;
+
+
+
+const [rows]=
+await pool.execute<FeedbackRow[]>(
+ sql,
+ [id]
+);
+
+
+
+if(rows.length===0){
+
+ return null;
+
+}
+
+
+
+return this.mapRow(rows[0]);
+
+}
+
+
+
+
+
+// ==========================================
+// CREATE
+// ==========================================
+
+async create(
+ data:FeedbackRepositoryData
+)
+:Promise<number>{
+
+
+
+const sql=`
+
+INSERT INTO feedback
+
+(
+
+patient_name,
+
+patient_image,
+
+treatment,
+
+rating,
+
+review,
+
+status,
+
+date
+
+)
+
+VALUES(?,?,?,?,?,?,?)
+
+`;
+
+
+
+const values=[
+
+data.patientName,
+
+this.normalizeImagePath(
+ data.patientImage
+),
+
+data.treatment,
+
+data.rating,
+
+data.review,
+
+data.status,
+
+data.date ?? null
+
+];
+
+
+
+const [result]=
+await pool.execute<ResultSetHeader>(
+ sql,
+ values
+);
+
+
+
+return result.insertId;
+
+
+}
+
+
+
+
+
+// ==========================================
+// UPDATE
+// ==========================================
+
+async update(
+
+id:number,
+
+data:FeedbackRepositoryData
+
+)
+:Promise<boolean>{
+
+
+
+const sql=`
+
+UPDATE feedback
+
+SET
+
+patient_name=?,
+
+patient_image=?,
+
+treatment=?,
+
+rating=?,
+
+review=?,
+
+status=?,
+
+date=?
+
+WHERE id=?
+
+`;
+
+
+
+const values=[
+
+
+data.patientName,
+
+
+this.normalizeImagePath(
+ data.patientImage
+),
+
+
+data.treatment,
+
+
+data.rating,
+
+
+data.review,
+
+
+data.status,
+
+
+data.date ?? null,
+
+
+id
+
+];
+
+
+
+const [result]=
+await pool.execute<ResultSetHeader>(
+ sql,
+ values
+);
+
+
+
+return result.affectedRows>0;
+
+
+}
+
+
+
+
+
+// ==========================================
+// UPDATE STATUS
+// ==========================================
+
+async updateStatus(
+
+id:number,
+
+status:FeedbackStatus
+
+)
+:Promise<boolean>{
+
+
+
+const sql=`
+
+UPDATE feedback
+
+SET status=?
+
+WHERE id=?
+
+`;
+
+
+
+const [result]=
+await pool.execute<ResultSetHeader>(
+ sql,
+ [
+  status,
+  id
+ ]
+);
+
+
+
+return result.affectedRows>0;
+
+
+}
+
+
+
+
+
+// ==========================================
+// DELETE
+// ==========================================
+
+async delete(
+ id:number
+)
+:Promise<boolean>{
+
+
+
+const sql=`
+
+DELETE FROM feedback
+
+WHERE id=?
+
+`;
+
+
+
+const [result]=
+await pool.execute<ResultSetHeader>(
+ sql,
+ [id]
+);
+
+
+
+return result.affectedRows>0;
+
+
+}
+
+
+
+}
+
+
+
+export default FeedbackRepository;

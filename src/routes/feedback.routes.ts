@@ -5,29 +5,20 @@ import {
 } from "../controllers/feedback.controller";
 
 import {
-  authMiddleware,
-} from "../middleware/auth.middleware";
-
-import {
   uploadFeedback,
 } from "../middleware/upload.middleware";
 
+
 const router = Router();
 
-// ==========================================
-// CONTROLLER
-// ==========================================
 
 const controller =
   new FeedbackController();
 
-// ==========================================
-// PUBLIC ROUTES
-// ==========================================
+
 
 // ==========================================
-// GET ALL FEEDBACK
-// GET /api/feedback
+// GET ALL
 // ==========================================
 
 router.get(
@@ -35,9 +26,10 @@ router.get(
   controller.getAll
 );
 
+
+
 // ==========================================
-// GET SINGLE FEEDBACK
-// GET /api/feedback/:id
+// GET BY ID
 // ==========================================
 
 router.get(
@@ -45,82 +37,55 @@ router.get(
   controller.getById
 );
 
-// ==========================================
-// PROTECTED ADMIN ROUTES
-// ==========================================
+
 
 // ==========================================
-// CREATE FEEDBACK
-// POST /api/feedback
-//
-// Content-Type:
-// multipart/form-data
-//
-// FormData field:
-// patientImage
+// CREATE
 // ==========================================
 
 router.post(
   "/",
-  authMiddleware,
   uploadFeedback.single(
     "patientImage"
   ),
   controller.create
 );
 
+
+
 // ==========================================
-// UPDATE FEEDBACK
-// PUT /api/feedback/:id
-//
-// Content-Type:
-// multipart/form-data
-//
-// FormData field:
-// patientImage
+// UPDATE
 // ==========================================
 
 router.put(
   "/:id",
-  authMiddleware,
   uploadFeedback.single(
     "patientImage"
   ),
   controller.update
 );
 
+
+
 // ==========================================
 // UPDATE STATUS
-// PATCH /api/feedback/:id/status
-//
-// Content-Type:
-// application/json
-//
-// Body:
-// {
-//   "status": "Approved"
-// }
 // ==========================================
 
 router.patch(
   "/:id/status",
-  authMiddleware,
   controller.updateStatus
 );
 
+
+
 // ==========================================
-// DELETE FEEDBACK
-// DELETE /api/feedback/:id
+// DELETE
 // ==========================================
 
 router.delete(
   "/:id",
-  authMiddleware,
   controller.delete
 );
 
-// ==========================================
-// EXPORT
-// ==========================================
 
 export default router;

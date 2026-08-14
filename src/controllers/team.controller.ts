@@ -1,48 +1,72 @@
-import { Request, Response } from "express";
-import { TeamService } from "../services/team.service";
+import {
+  Request,
+  Response
+} from "express";
+
+import {
+  TeamService
+} from "../services/team.service";
 
 
-const teamService = new TeamService();
+const teamService =
+new TeamService();
 
 
 
 export class TeamController {
 
 
-
-  // ==========================
+  // ======================================
   // CREATE TEAM MEMBER
-  // ==========================
+  // ======================================
+
 
   static async create(
-    req: Request,
-    res: Response
-  ) {
+    req:Request,
+    res:Response
+  ){
 
-    try {
+    try{
 
 
       const data = {
+
 
         ...req.body,
 
 
         designationId:
-          Number(req.body.designationId),
+          Number(
+            req.body.designationId
+          ),
+
 
 
         image:
+
           req.file
-          ? `/uploads/${req.file.filename}`
-          : null,
+
+          ? `/uploads/team/${req.file.filename}`
+
+          : null
 
 
       };
 
 
 
+      console.log(
+        "CREATE TEAM CONTROLLER:",
+        data
+      );
+
+
+
+
       const result =
-        await teamService.create(data);
+        await teamService.create(
+          data
+        );
 
 
 
@@ -50,11 +74,13 @@ export class TeamController {
 
         success:true,
 
-        message:"Team member added",
+        message:
+          "Team member added",
 
         data:result
 
       });
+
 
 
     }
@@ -78,15 +104,19 @@ export class TeamController {
 
     }
 
+
   }
 
 
 
 
 
-  // ==========================
+
+
+
+  // ======================================
   // GET ALL
-  // ==========================
+  // ======================================
 
 
   static async getAll(
@@ -133,9 +163,13 @@ export class TeamController {
 
 
 
-  // ==========================
+
+
+
+
+  // ======================================
   // GET BY ID
-  // ==========================
+  // ======================================
 
 
   static async getById(
@@ -147,7 +181,9 @@ export class TeamController {
 
 
       const id =
-        Number(req.params.id);
+        Number(
+          req.params.id
+        );
 
 
 
@@ -157,7 +193,8 @@ export class TeamController {
 
           success:false,
 
-          message:"Invalid team id"
+          message:
+          "Invalid team id"
 
         });
 
@@ -166,7 +203,9 @@ export class TeamController {
 
 
       const result =
-        await teamService.getById(id);
+        await teamService.getById(
+          id
+        );
 
 
 
@@ -177,6 +216,7 @@ export class TeamController {
         data:result
 
       });
+
 
 
     }
@@ -200,9 +240,13 @@ export class TeamController {
 
 
 
-  // ==========================
-  // UPDATE
-  // ==========================
+
+
+
+
+  // ======================================
+  // UPDATE TEAM MEMBER
+  // ======================================
 
 
   static async update(
@@ -214,7 +258,15 @@ export class TeamController {
 
 
       const id =
-        Number(req.params.id);
+        Number(
+          req.params.id
+        );
+
+
+
+
+      const oldTeam =
+        await teamService.getById(id);
 
 
 
@@ -225,7 +277,9 @@ export class TeamController {
 
 
         designationId:
-          Number(req.body.designationId),
+          Number(
+            req.body.designationId
+          ),
 
 
 
@@ -233,20 +287,37 @@ export class TeamController {
 
           req.file
 
-          ? `/uploads/${req.file.filename}`
+          ? `/uploads/team/${req.file.filename}`
 
-          : req.body.image ?? null
+          : oldTeam?.image ?? null
+
 
 
       };
 
 
 
+
+
+      console.log(
+        "UPDATE TEAM CONTROLLER:",
+        data
+      );
+
+
+
+
+
       const result =
         await teamService.update(
+
           id,
+
           data
+
         );
+
+
 
 
 
@@ -254,11 +325,13 @@ export class TeamController {
 
         success:true,
 
-        message:"Team updated",
+        message:
+        "Team updated",
 
         data:result
 
       });
+
 
 
     }
@@ -276,15 +349,20 @@ export class TeamController {
 
     }
 
+
   }
 
 
 
 
 
-  // ==========================
+
+
+
+
+  // ======================================
   // DELETE
-  // ==========================
+  // ======================================
 
 
   static async delete(
@@ -296,11 +374,15 @@ export class TeamController {
 
 
       const id =
-        Number(req.params.id);
+        Number(
+          req.params.id
+        );
 
 
 
-      await teamService.delete(id);
+      await teamService.delete(
+        id
+      );
 
 
 
@@ -308,9 +390,11 @@ export class TeamController {
 
         success:true,
 
-        message:"Team deleted"
+        message:
+        "Team deleted"
 
       });
+
 
 
     }
