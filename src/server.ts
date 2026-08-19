@@ -32,10 +32,11 @@ const app = express();
 
 app.use(
   cors({
-    origin:
+    origin:[
       "http://localhost:3000",
-
-    credentials:true,
+      "http://localhost:3001"
+    ],
+    credentials:true
   })
 );
 
@@ -103,7 +104,12 @@ const feedbackUploadsPath =
     uploadsPath,
     "feedback"
   );
-
+app.use(
+ "/uploads",
+ express.static(
+   path.join(__dirname,"../uploads")
+ )
+);
 
 const galleryUploadsPath =
   path.join(

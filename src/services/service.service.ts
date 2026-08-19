@@ -2,72 +2,147 @@ import { ServiceRepository } from "../repositories/service.repository";
 import { Service } from "../types/service";
 
 
+
 export class ServiceService {
+
 
   private repository =
     new ServiceRepository();
 
 
 
-  // CREATE
+
+
+
+  // ==========================================
+  // CREATE SERVICE
+  // ==========================================
+
   async createService(
     service: Service
   ): Promise<number> {
 
-    return this.repository.create(
+
+    return await this.repository.create(
       service
     );
 
+
   }
 
 
 
-  // GET ALL
+
+
+
+
+
+  // ==========================================
+  // GET ALL SERVICES
+  // ==========================================
+
   async getServices() {
 
-    return this.repository.findAll();
+
+    return await this.repository.findAll();
+
 
   }
 
 
 
-  // GET BY ID
+
+
+
+
+
+  // ==========================================
+  // GET SERVICE BY ID
+  // ==========================================
+
   async getServiceById(
     id:number
   ) {
 
-    return this.repository.findById(
+
+    return await this.repository.findById(
       id
     );
+
 
   }
 
 
 
-  // UPDATE
+
+
+
+
+
+  // ==========================================
+  // GET SERVICE BY SLUG
+  // ==========================================
+
+  async getServiceBySlug(
+    slug:string
+  ) {
+
+
+    return await this.repository.findBySlug(
+      slug
+    );
+
+
+  }
+
+
+
+
+
+
+
+
+  // ==========================================
+  // UPDATE SERVICE
+  // ==========================================
+
   async updateService(
     id:number,
     service:Service
-  ):Promise<boolean>{
+  ):Promise<boolean> {
 
-    return this.repository.update(
+
+    return await this.repository.update(
       id,
       service
     );
 
+
   }
 
 
 
-  // DELETE
+
+
+
+
+
+  // ==========================================
+  // DELETE SERVICE
+  // ==========================================
+
   async deleteService(
     id:number
-  ):Promise<boolean>{
+  ):Promise<boolean> {
 
-    return this.repository.delete(
+
+    return await this.repository.delete(
       id
     );
 
+
   }
+
+
 
 }

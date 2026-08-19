@@ -1,5 +1,3 @@
-import "express";
-
 import { Multer } from "multer";
 
 
@@ -11,9 +9,7 @@ declare global {
 
       file?: Multer.File;
 
-      files?: Multer.File[] | {
-        [fieldname: string]: Multer.File[];
-      };
+      files?: Multer.File[];
 
     }
 

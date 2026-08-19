@@ -1,23 +1,36 @@
 export interface Service {
+
   id?: number;
 
   name: string;
 
-  // Foreign key
-  categoryId: number;
+  slug?: string;
 
-  // Joined category name (optional)
+
+  categoryId: number | null;
+
   categoryName?: string;
+
 
   duration: string;
 
+
+  shortDescription?: string;
+
+
   description: string;
+
 
   image?: string | null;
 
-  status?: "Active" | "Inactive";
 
-  createdAt?: Date;
+  status:
+    | "Active"
+    | "Inactive";
 
-  updatedAt?: Date;
+
+  createdAt?: string;
+
+  updatedAt?: string;
+
 }

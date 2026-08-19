@@ -1,73 +1,87 @@
 import { Request, Response } from "express";
+
 import { ServiceService } from "../services/service.service";
+
+import { Service } from "../types/service";
+
 
 
 export class ServiceController {
 
-  private service = new ServiceService();
+
+  private service =
+    new ServiceService();
+
+
 
 
 
   // ==========================================
   // CREATE SERVICE
-  // POST /api/services
   // ==========================================
-  create = async (
+
+  create = async(
     req: Request,
     res: Response
   ) => {
 
+
     try {
 
 
-      console.log(
-        "SERVICE BODY:",
-        req.body
-      );
-
-
-      console.log(
-        "SERVICE FILE:",
+      const image =
         req.file
-      );
+          ? `/uploads/services/${req.file.filename}`
+          : null;
 
 
 
-      const service = {
+      const service: Service = {
+
 
         name:
           req.body.name || "",
 
 
+
         categoryId:
-          Number(
-            req.body.categoryId
-          ),
+          req.body.categoryId
+          ?
+          Number(req.body.categoryId)
+          :
+          null,
+
 
 
         duration:
           req.body.duration || "",
 
 
+
+        shortDescription:
+          req.body.shortDescription || "",
+
+
+
         description:
           req.body.description || "",
 
 
-        image:
-          req.file
-            ? req.file.filename
-            : null,
+
+        image,
+
 
 
         status:
           req.body.status || "Active",
+
 
       };
 
 
 
       console.log(
-        "FINAL SERVICE:",
+        "CREATE SERVICE:",
         service
       );
 
@@ -87,13 +101,14 @@ export class ServiceController {
         message:
           "Service created successfully.",
 
-        id,
+        id
 
       });
 
 
 
-    } catch(error:any) {
+    }
+    catch(error:any){
 
 
       console.error(
@@ -102,20 +117,23 @@ export class ServiceController {
       );
 
 
+
       return res.status(500).json({
 
         success:false,
 
-        message:
-          error.message ||
-          "Failed to create service."
+        message:error.message
 
       });
 
 
     }
 
+
   };
+
+
+
 
 
 
@@ -125,12 +143,14 @@ export class ServiceController {
   // ==========================================
   // GET ALL SERVICES
   // ==========================================
-  getAll = async (
-    req: Request,
-    res: Response
-  ) => {
 
-    try {
+  getAll = async(
+    req:Request,
+    res:Response
+  )=>{
+
+
+    try{
 
 
       const services =
@@ -142,34 +162,32 @@ export class ServiceController {
 
         success:true,
 
-        data:services,
+        data:services
 
       });
 
 
 
-    } catch(error:any) {
-
-
-      console.error(
-        "GET SERVICES ERROR:",
-        error
-      );
+    }
+    catch(error:any){
 
 
       return res.status(500).json({
 
         success:false,
 
-        message:
-          error.message
+        message:error.message
 
       });
 
 
     }
 
+
   };
+
+
+
 
 
 
@@ -179,16 +197,33 @@ export class ServiceController {
   // ==========================================
   // GET SERVICE BY ID
   // ==========================================
-  getById = async (
-    req: Request,
-    res: Response
-  ) => {
 
-    try {
+  getById = async(
+    req:Request,
+    res:Response
+  )=>{
+
+
+    try{
 
 
       const id =
         Number(req.params.id);
+
+
+
+      if(!id){
+
+        return res.status(400).json({
+
+          success:false,
+
+          message:
+            "Invalid service id"
+
+        });
+
+      }
 
 
 
@@ -201,6 +236,7 @@ export class ServiceController {
 
       if(!service){
 
+
         return res.status(404).json({
 
           success:false,
@@ -209,6 +245,7 @@ export class ServiceController {
             "Service not found."
 
         });
+
 
       }
 
@@ -224,28 +261,125 @@ export class ServiceController {
 
 
 
-    } catch(error:any) {
+    }
+    catch(error:any){
 
 
       console.error(
-        "GET SERVICE ERROR:",
+        "GET SERVICE BY ID ERROR:",
         error
       );
+
 
 
       return res.status(500).json({
 
         success:false,
 
-        message:
-          error.message
+        message:error.message
 
       });
 
 
     }
 
+
   };
+
+
+
+
+
+
+
+
+
+  // ==========================================
+  // GET SERVICE BY SLUG
+  // ==========================================
+
+  getBySlug = async(
+    req:Request,
+    res:Response
+  )=>{
+
+
+    try{
+
+
+      const slug =
+        Array.isArray(req.params.slug)
+
+        ? 
+
+        req.params.slug[0]
+
+        :
+
+        req.params.slug;
+
+
+
+      const service =
+        await this.service.getServiceBySlug(
+          slug
+        );
+
+
+
+      if(!service){
+
+
+        return res.status(404).json({
+
+          success:false,
+
+          message:
+            "Service not found."
+
+        });
+
+
+      }
+
+
+
+      return res.status(200).json({
+
+        success:true,
+
+        data:service
+
+      });
+
+
+
+    }
+    catch(error:any){
+
+
+      console.error(
+        "GET SERVICE BY SLUG ERROR:",
+        error
+      );
+
+
+
+      return res.status(500).json({
+
+        success:false,
+
+        message:error.message
+
+      });
+
+
+    }
+
+
+  };
+
+
 
 
 
@@ -256,12 +390,14 @@ export class ServiceController {
   // ==========================================
   // UPDATE SERVICE
   // ==========================================
-  update = async (
-    req: Request,
-    res: Response
-  ) => {
 
-    try {
+  update = async(
+    req:Request,
+    res:Response
+  )=>{
+
+
+    try{
 
 
       const id =
@@ -269,31 +405,53 @@ export class ServiceController {
 
 
 
-      const service = {
+      if(!id){
+
+        return res.status(400).json({
+
+          success:false,
+
+          message:
+            "Invalid service id"
+
+        });
+
+      }
+
+
+
+
+      const service:Partial<Service> = {
+
 
 
         name:
           req.body.name || "",
 
 
+
         categoryId:
-          Number(
-            req.body.categoryId
-          ),
+          req.body.categoryId
+          ?
+          Number(req.body.categoryId)
+          :
+          null,
+
 
 
         duration:
           req.body.duration || "",
 
 
+
+        shortDescription:
+          req.body.shortDescription || "",
+
+
+
         description:
           req.body.description || "",
 
-
-        image:
-          req.file
-            ? req.file.filename
-            : req.body.image || null,
 
 
         status:
@@ -304,22 +462,34 @@ export class ServiceController {
 
 
 
-      console.log(
-        "UPDATE SERVICE:",
-        service
-      );
+
+
+      if(req.file){
+
+
+        service.image =
+          `/uploads/services/${req.file.filename}`;
+
+
+      }
+
+
 
 
 
       const updated =
         await this.service.updateService(
+
           id,
-          service
+
+          service as Service
+
         );
 
 
 
       if(!updated){
+
 
         return res.status(404).json({
 
@@ -329,6 +499,7 @@ export class ServiceController {
             "Service not found."
 
         });
+
 
       }
 
@@ -345,7 +516,8 @@ export class ServiceController {
 
 
 
-    } catch(error:any) {
+    }
+    catch(error:any){
 
 
       console.error(
@@ -354,19 +526,22 @@ export class ServiceController {
       );
 
 
+
       return res.status(500).json({
 
         success:false,
 
-        message:
-          error.message
+        message:error.message
 
       });
 
 
     }
 
+
   };
+
+
 
 
 
@@ -377,12 +552,14 @@ export class ServiceController {
   // ==========================================
   // DELETE SERVICE
   // ==========================================
-  remove = async (
-    req: Request,
-    res: Response
-  ) => {
 
-    try {
+  remove = async(
+    req:Request,
+    res:Response
+  )=>{
+
+
+    try{
 
 
       const id =
@@ -399,6 +576,7 @@ export class ServiceController {
 
       if(!deleted){
 
+
         return res.status(404).json({
 
           success:false,
@@ -407,6 +585,7 @@ export class ServiceController {
             "Service not found."
 
         });
+
 
       }
 
@@ -423,7 +602,8 @@ export class ServiceController {
 
 
 
-    } catch(error:any) {
+    }
+    catch(error:any){
 
 
       console.error(
@@ -432,17 +612,18 @@ export class ServiceController {
       );
 
 
+
       return res.status(500).json({
 
         success:false,
 
-        message:
-          error.message
+        message:error.message
 
       });
 
 
     }
+
 
   };
 
